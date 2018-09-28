@@ -1,0 +1,155 @@
+// TaskSwitchXP.rc
+
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+#include "afxres.h"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+//-----------------------------------------------------------
+//-----------------------------------------------------------------
+// Neutral resources
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+
+//-----------------------------------------------------------------
+// Version
+
+VS_VERSION_INFO VERSIONINFO
+	FILEVERSION 2,0,11,0
+	PRODUCTVERSION 2,0,11,0
+	FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+	FILEFLAGS 0x1L
+#else
+	FILEFLAGS 0x0L
+#endif
+	FILEOS 0x4L
+	FILETYPE 0x1L
+	FILESUBTYPE 0x0L
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904e4"
+		BEGIN
+			VALUE "CompanyName", "Alexander Avdonin"
+			VALUE "FileDescription", "TaskSwitchXP Pro 2.0"
+			VALUE "FileVersion", "2.0.11.0"
+			VALUE "InternalName", "TaskSwitchXP.exe"
+			VALUE "LegalCopyright", "© 2004-2006 by Alexander Avdonin"
+			VALUE "OriginalFilename", "TaskSwitchXP.exe"
+			VALUE "ProductName", "TaskSwitchXP"
+			VALUE "ProductVersion", "2.0.11.0"
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END
+
+//-----------------------------------------------------------------
+
+1					RT_MANIFEST		"res//TaskSwitchXP.manifest"
+
+//-----------------------------------------------------------
+
+IDI_TASKSWITCHXP	ICON			"res//TaskSwitchXP.ico"
+IDI_MORE			ICON			"res//more.ico"
+//IDI_VMORETOP		ICON			"res//vmore_top.ico"
+//IDI_VMOREBOTTOM		ICON			"res//vmore_bottom.ico"
+
+//-----------------------------------------------------------
+// String Table
+
+STRINGTABLE 
+BEGIN
+	IDS_QUICKCONFIG			"Quick preferences"
+	IDS_HIDE				"Hide tray icon"
+	IDS_REPLACEALTTAB		"Replace Alt-Tab"
+	IDS_INSTSWITCHER		"Enable Instance switcher"
+	IDS_STICKYALTTAB		"Enable Alt-Tab ""sticky"" mode"
+	IDS_HOOKALTTAB			"Use low-level keyboard hook"
+	IDS_NEWEXCLUSION		"New exclusion..."
+
+	IDS_STTRAYNEXT			"Applications list"
+	IDS_STITRAYNEXT			"Instances list"	
+	IDS_CONFIG				"Preferences..."
+	IDS_EXIT				"Exit"
+
+	IDS_HELP				"Help"
+	IDS_DOCUMENTATION		"Documentation"
+	IDS_HOMEPAGE			"Home Page"
+	IDS_ABOUT				"About TaskSwitchXP"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_EMCAPTION			"TSXP: %d app(s)"
+	IDS_EMRESTOREALL		"Restore All"
+	IDS_EMMINIMIZEALL		"Minimize All"
+	IDS_EMCLOSEALL			"Close All"
+	IDS_EMRESTORE			"Restore"
+	IDS_EMMINIMIZE			"Minimize"
+	IDS_EMCLOSE				"Close"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_SWITCH				"Switch To"
+	IDS_RESTORE				"Restore"
+	IDS_MINIMIZE			"Minimize"
+	IDS_MAXIMIZE			"Maximize"
+	IDS_CLOSE				"Close"
+	IDS_FLIPTOTRAY			"Minimize to Tray"
+	IDS_TERMINATE			"End Process"
+
+	IDS_CASCADE				"Cascade"
+	IDS_TILEHORIZONTALLY	"Tile Horizontally"
+	IDS_TILEVERTICALLY		"Tile Vertically"
+		
+	IDS_SHOWINFO			"Show Process Info"
+	IDS_SELECTALL			"Select All"
+	IDS_SELECTNONE			"Select None"
+	IDS_REMOVESEL			"Remove Selected"
+	IDS_SORTBYTITLE			"Sort by Title"
+	IDS_SORTBYEXEPATH		"Sort by Application"	
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_INFOTIPMASK			"Image Name:  %s\r\nProcess ID:  %u\r\n\r\nDuration:  %u:%02u:%02u\r\nCPU Time:  %u:%02u:%02u\r\n\r\nMem Usage:  %uK\r\nVM Size:  %uK"
+	IDS_NOTAVAILABLE		"N/A"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_CONFIRMCAPTION		"TaskSwitchXP confirmation"
+	IDS_CONFIRM_RUNNING		"TaskSwitchXP is already running. Do you want to stop it?"
+	IDS_CONFIRM_MSTS		"TaskSwitchXP has detected Ms PowerToy TaskSwitcher is running.\r\nDo you want to terminate it?"
+	IDS_CONFIRM_EXIT		"Are you sure you want to exit TaskSwitchXP?"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_ERRCAPTION			"TaskSwitchXP Error"
+	IDS_ERR_LANGFILE		"Could not load language file."
+	IDS_ERR_LOADSETTINGS	"Initialization failed."
+	IDS_ERR_KBHOOK			"Could not install low level keyboard hook."
+	IDS_ERR_ALTTAB			"Could not register hot key Alt+Tab or Alt+Shift+Tab.\r\nAnother application may have already registered it."
+	IDS_ERR_INSTSWITCHER	"Could not register hot key Ctrl+Alt+Tab or Ctrl+Alt+Shift+Tab.\r\nAnother application may have already registered it."
+	IDS_ERR_CONFIGTSXP		"Could not start ConfigTsXP.exe! Check your TaskSwitchXP installation."
+
+	IDS_ERR_HKERROR			"Could not register hot key:\r\n\r\nName: %s\r\nModifiers: %02X\r\nVirtual Code: %02X"
+	IDS_ERR_EXITHK			"Exit TaskSwitchXP"
+	IDS_ERR_SHOWHIDEHK		"Show/Hide tray icon"
+	IDS_ERR_CONFIGHK		"Configure TaskSwitchXP"
+	IDS_ERR_STNEXTTASKHK	"Applications list"
+	IDS_ERR_STINEXTTASKHK	"Instances list"
+	IDS_ERR_MINIMIZETRAYHK	"Minimize window to tray"
+	IDS_ERR_RESTORETRAYHK	"Restrore from tray"
+END
+
+//-----------------------------------------------------------
+
