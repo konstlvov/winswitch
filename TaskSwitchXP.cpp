@@ -3733,11 +3733,11 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 								else MultiSelectAll(hwnd, FALSE);
 							} 
 							break;
-						case 0x43: // C - cascade
+						case 0x43: // Ctrl-C - cascade
 							if (GetAsyncKeyState(VK_CONTROL) & 0x8000) ReorderSelected(hwnd, RO_CASCADE);
 							break;
 
-						case 0x48: // H - tile horizontally
+						case 0x48: // Ctrl-H - tile horizontally
 							if (GetAsyncKeyState(VK_CONTROL) & 0x8000) ReorderSelected(hwnd, RO_TILEHORIZONTALLY);
 							break;
 
