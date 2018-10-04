@@ -1,8 +1,9 @@
 ﻿Windows Alt-Tab manager
 
-Based on Alexander Avdonin TaskSwitchXP.
+Based on Alexander Avdonin <a href="https://www.ntwind.com/software/alttabter/old-taskswitchxp.html">TaskSwitchXP</a>.
 
-Copyright 2004-2006 by Alexander Avdonin. All rights reserved. Copyright 2007-2018 by Konstantin Lvov. All rights reserved.
+Copyright 2004-2006 by Alexander Avdonin. All rights reserved.
+Copyright 2007-2018 by Konstantin Lvov. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
