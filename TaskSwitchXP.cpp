@@ -3710,6 +3710,7 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 							MinimizeSelected(hwnd);
 							break;
 						case VK_F6:
+              MinimizeSelected(hwnd);
 							MaxRestoreSelected(hwnd, SC_RESTORE);
 							break;
 						case VK_F7:
