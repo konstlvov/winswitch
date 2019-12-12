@@ -1,0 +1,775 @@
+// ConfigTsXP.rc
+
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+#include "afxres.h"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+// Neutral resources
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+
+//-----------------------------------------------------------------
+// Version
+
+VS_VERSION_INFO VERSIONINFO
+	FILEVERSION 2,0,11,0
+	PRODUCTVERSION 2,0,11,0
+	FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+	FILEFLAGS 0x1L
+#else
+	FILEFLAGS 0x0L
+#endif
+	FILEOS 0x4L
+	FILETYPE 0x1L
+	FILESUBTYPE 0x0L
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904e4"
+		BEGIN
+			VALUE "CompanyName", "Alexander Avdonin"
+			VALUE "FileDescription", "TaskSwitchXP Configuration"
+			VALUE "FileVersion", "2.0.11.0"
+			VALUE "InternalName", "ConfigTsXP.exe"
+			VALUE "LegalCopyright", "© 2004-2006 by Alexander Avdonin"
+			VALUE "OriginalFilename", "ConfigTsXP.exe"
+			VALUE "ProductName", "TaskSwitchXP"
+			VALUE "ProductVersion", "2.0.11.0"
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END
+
+//-----------------------------------------------------------------
+// Icon
+
+IDI_MAIN				ICON					"res\\ConfigTsXP.ico"
+IDI_PREFERENCES			ICON					"res\\preferences.ico"
+IDI_APPEARANCE			ICON					"res\\appearance.ico"
+IDI_LIST				ICON					"res\\list.ico"
+IDI_PREVIEW				ICON					"res\\preview.ico"
+IDI_INFO				ICON					"res\\info.ico"
+IDI_HOTKEYS				ICON					"res\\hotkeys.ico"
+IDI_EXCLUSIONS			ICON					"res\\exclusions.ico"
+IDI_ADVANCED			ICON					"res\\advanced.ico"
+IDI_ABOUT				ICON					"res\\about.ico"
+IDI_TASKSWITCHXP48		ICON					"res\\TaskSwitchXP_48.ico"
+IDI_TASKSWITCHXP16		ICON					"res\\TaskSwitchXP_16.ico"
+//IDI_HELP				ICON					"res\\help.ico"
+//IDI_APPWINDOW			ICON					"res\\app_window.ico"
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+// English (U.S.) resources
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+//-----------------------------------------------------------------
+// RT_MANIFEST
+
+1                       RT_MANIFEST             "res\\ConfigTsXP.manifest"
+
+//-----------------------------------------------------------------
+// Dialog
+//
+
+IDD_MAIN DIALOGEX 0, 0, 360, 230
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | //WS_MINIMIZEBOX | 
+    WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP | WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
+CAPTION ""
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+	CONTROL         "",IDC_PAGES,"SysTreeView32",TVS_NOSCROLL | TVS_NONEVENHEIGHT | 
+					TVS_DISABLEDRAGDROP | TVS_FULLROWSELECT | TVS_SHOWSELALWAYS | 
+					TVS_TRACKSELECT | WS_BORDER | WS_TABSTOP,5,5,90,200,WS_EX_STATICEDGE
+
+    CONTROL         "",IDC_PAGETITLE,"Static",SS_OWNERDRAW,105,5,250,18
+	CONTROL         "",IDC_PAGETAB,"SysTabControl32",WS_DISABLED,105,25,250,180
+
+    DEFPUSHBUTTON   "",IDC_OK,184,212,55,15
+    PUSHBUTTON      "",IDC_CANCEL,242,212,55,15
+	PUSHBUTTON      "",IDC_APPLY,300,212,55,15
+
+	CONTROL         "© 2004-2006 by <A id=""idMyMail"" href=""mailto:alexander@ntwind.com?subject=TaskSwitchXP%20Pro%202.0"">Alexander Avdonin</A>\r\n<A id=""idMyHome"" href=""http://www.ntwind.com/taskswitchxp/"">http://www.ntwind.com/taskswitchxp/</A>",
+					IDC_TRANSLATORLINK,"SysLink",WS_TABSTOP,4,211,180,16
+END
+
+//-----------------------------------------------------------------
+
+IDD_PREFERENCESPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	GROUPBOX        "",IDC_LANGUAGETEXT,7,5,236,29
+	CONTROL         "",IDC_LANGLINK,"SysLink",WS_TABSTOP,129,19,107,8
+	COMBOBOX        IDC_LANGUAGECOMBO,14,16,110,300,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+					CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+
+	CONTROL         "",IDC_PERUSERSETTINGS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,42,236,10
+	CONTROL         "",IDC_AUTOSTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,52,236,10
+	CONTROL         "",IDC_HIGHPRIORITY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,62,236,10
+	CONTROL         "",IDC_CHECKMSTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,72,236,10
+
+	GROUPBOX        "",IDC_TRAYICONSTEXT,7,86,236,84
+	CONTROL         "",IDC_SHOWTRAYICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,97,222,10
+	CONTROL         "",IDC_USECUSTOMICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,107,222,10
+	ICON            IDI_TASKSWITCHXP16,IDC_CUSTOMICON,24,120,16,16,SS_REALSIZEIMAGE | WS_DISABLED
+	EDITTEXT        IDC_CUSTOMICONEDIT,39,118,182,13,ES_AUTOHSCROLL | ES_READONLY | WS_DISABLED
+	PUSHBUTTON      "...",IDC_CUSTOMICONBROWSE,222,118,16,13,WS_DISABLED
+	CONTROL         "",IDC_RELOADICONS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,136,222,10
+	CONTROL         "",IDC_EXTMOUSE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,146,222,10
+	CONTROL         "",IDC_ENUMTRAY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,156,222,10	
+
+	PUSHBUTTON      "",IDC_EXPORTSETTINGS,7,178,65,14
+	PUSHBUTTON      "",IDC_IMPORTSETTINGS,75,178,65,14
+
+	PUSHBUTTON      "",IDC_RESTOREDEFAULTS,148,178,95,14
+END
+
+//-----------------------------------------------------------------
+
+IDD_APPEARANCEPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	GROUPBOX        "",IDC_SCREENPOSTEXT,7,5,236,28
+	CONTROL         "",IDC_ACTIVEMONITOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,116,18,120,10
+	COMBOBOX        IDC_SCREENPOSCOMBO,14,16,96,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+
+	CONTROL         "",IDC_DROPSHADOW,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,37,236,10
+    CONTROL         "",IDC_TRANSPARENCY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,47,194,10
+    CONTROL         "",IDC_TRANSPARENCYSLIDER,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP | 
+					WS_DISABLED,17,57,207,12
+    RTEXT           "0%",IDC_TRANSPARENCYTEXT,224,57,16,8,WS_DISABLED
+	/*EDITTEXT        IDC_TRANSPARENCYEDIT,203,44,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER | WS_DISABLED
+	CONTROL         "",IDC_TRANSPARENCYSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | WS_DISABLED | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,203,44,11,13*/
+
+	CONTROL         "",IDC_FADEIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,75,194,10
+	EDITTEXT        IDC_FADEINEDIT,203,74,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER | WS_DISABLED
+	CONTROL         "",IDC_FADEINSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | WS_DISABLED | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,203,74,11,13
+
+	CONTROL         "",IDC_FADEOUT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,90,194,10
+	EDITTEXT        IDC_FADEOUTEDIT,203,89,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER | WS_DISABLED
+	CONTROL         "",IDC_FADEOUTSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | WS_DISABLED | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,203,89,11,13
+
+	GROUPBOX        "",IDC_DRAWMODESTEXT,7,104,236,87
+	LTEXT           "",IDC_VISUALMODETEXT,14,115,222,8
+	COMBOBOX        IDC_VISUALMODECOMBO,14,124,222,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+	LTEXT           "",IDC_CLASSICMODETEXT,14,141,222,8
+	COMBOBOX        IDC_CLASSICMODECOMBO,14,150,222,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+	CONTROL         "",IDC_NOVISUALSTYLES,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,168,222,10
+	CONTROL         "",IDC_LEFTRIGHT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,178,222,10
+END
+
+//-----------------------------------------------------------------
+
+IDD_LISTPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	GROUPBOX        "",IDC_LISTSTYLETEXT,7,5,236,44
+	CONTROL         "",IDC_SMALLICONS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,31,90,10
+	COMBOBOX        IDC_LISTSTYLECOMBO,14,16,90,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+	RTEXT           "",IDC_ICONSXTEXT,108,18,84,8
+	EDITTEXT        IDC_ICONSXEDIT,196,16,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+	CONTROL         "",IDC_ICONSXSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,196,16,11,13
+	RTEXT           "",IDC_LISTWIDTHTEXT,108,18,84,8,NOT WS_VISIBLE
+	EDITTEXT        IDC_LISTWIDTHEDIT,196,16,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
+	CONTROL         "",IDC_LISTWIDTHSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS | NOT WS_VISIBLE,196,16,11,13
+	RTEXT           "",IDC_ICONSYTEXT,108,34,84,8
+	EDITTEXT        IDC_ICONSYEDIT,196,32,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+	CONTROL         "",IDC_ICONSYSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,196,32,11,13
+
+	CONTROL         "",IDC_SHOWTOOLTIPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,54,236,10
+	CONTROL         "",IDC_HOTTRACK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,64,236,10
+	CONTROL         "",IDC_MOUSEOVER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,74,236,10
+	CONTROL         "",IDC_INVERSEWHEEL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,84,236,10
+
+	GROUPBOX        "",IDC_SELSTYLETEXT,7,98,236,30
+	COMBOBOX        IDC_SELSTYLECOMBO,14,110,100,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+	CONTROL         "",IDC_DRAWFOCUSRECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,112,115,10
+
+	GROUPBOX        "",IDC_LISTFONTTEXT,7,133,236,58
+	LTEXT           "",IDC_LISTFONTNAMETEXT,14,143,144,8
+	COMBOBOX        IDC_LISTFONTNAMECOMBO,14,152,144,132,CBS_DROPDOWNLIST | CBS_SORT | CBS_HASSTRINGS | 
+					CBS_NOINTEGRALHEIGHT | CBS_OWNERDRAWFIXED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDC_LISTFONTSIZETEXT,164,143,72,8
+    COMBOBOX        IDC_LISTFONTSIZECOMBO,164,152,40,132,CBS_DROPDOWN | CBS_NOINTEGRALHEIGHT | 
+                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_LISTFONTBOLD,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,208,152,14,13
+    CONTROL         "",IDC_LISTFONTITALIC,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,222,152,14,13
+
+	RTEXT           "",IDC_LCOLORTEXT,14,174,42,8
+	COMBOBOX        IDC_LCOLORCOMBO,60,172,120,132,CBS_DROPDOWNLIST | 
+					CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+	PUSHBUTTON      "",IDC_LCOLOR,185,172,36,14
+END
+
+//-----------------------------------------------------------------
+
+IDD_PREVIEWPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	GROUPBOX        "",IDC_PVSTYLETEXT,7,5,236,72
+	CONTROL         "",IDC_PVDESKTOPSTYLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP | WS_GROUP,14,17,222,10
+	CONTROL         "",IDC_PVTASKBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP | WS_DISABLED,24,28,212,10
+	CONTROL         "",IDC_PVWINDOWSTYLE,"Button",BS_AUTORADIOBUTTON,14,43,222,10
+	CONTROL         "",IDC_PVPOPUPONLY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP | WS_DISABLED,24,54,212,10
+	CONTROL         "",IDC_PVOLDSTYLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP | WS_DISABLED,24,64,212,10
+	
+	CONTROL         "",IDC_PVWALLPAPER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,81,236,10
+	CONTROL         "",IDC_PVDRAWBORDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,91,236,10
+	CONTROL         "",IDC_PVVCENTER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,101,236,10
+	CONTROL         "",IDC_PVSHOWMINIMIZED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,111,236,10
+	CONTROL         "",IDC_PVEXCLUDELAYERED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,121,236,10
+
+	LTEXT           "",IDC_PVWIDTHTEXT,7,137,194,8
+	EDITTEXT        IDC_PVWIDTHEDIT,203,135,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+	CONTROL         "",IDC_PVWIDTHSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,203,135,11,13
+
+	LTEXT           "",IDC_PVDELAYTEXT,7,153,194,8
+	EDITTEXT        IDC_PVDELAYEDIT,203,151,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+	CONTROL         "",IDC_PVDELAYSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,203,151,11,13
+	
+	CONTROL         "",IDC_PVNOCACHE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,168,236,10
+	CONTROL         "",IDC_PVLIVEUPDATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP | WS_DISABLED,17,179,184,10
+	EDITTEXT        IDC_PVUPDATEEDIT,203,178,40,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER | WS_DISABLED
+	CONTROL         "",IDC_PVUPDATESPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | WS_DISABLED | 
+					UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,203,178,11,13
+END
+
+//-----------------------------------------------------------------
+
+IDD_INFOPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	GROUPBOX        "",IDC_CAPPANETEXT,7,5,236,92
+	LTEXT           "",IDC_CAPFONTNAMETEXT,14,16,144,8
+	COMBOBOX        IDC_CAPFONTNAMECOMBO,14,25,144,132,CBS_DROPDOWNLIST | CBS_SORT | CBS_HASSTRINGS | 
+					CBS_NOINTEGRALHEIGHT | CBS_OWNERDRAWFIXED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDC_CAPFONTSIZETEXT,164,16,72,8
+    COMBOBOX        IDC_CAPFONTSIZECOMBO,164,25,40,132,CBS_DROPDOWN | CBS_NOINTEGRALHEIGHT | 
+                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_CAPFONTBOLD,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,208,25,14,13
+    CONTROL         "",IDC_CAPFONTITALIC,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,222,25,14,13
+	LTEXT           "",IDC_CAPTEXTCOLORTEXT,14,44,40,8
+    PUSHBUTTON      "",IDC_CAPTEXTCOLOR,14,53,36,14
+	CONTROL         "",IDC_CAPDRAWSHADOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,60,42,176,10
+	GROUPBOX        "",IDC_STATIC,60,48,176,23
+	RTEXT           "",IDC_CAPSHADOWDEEPTEXT,67,57,40,8,WS_DISABLED
+    EDITTEXT        IDC_CAPSHADOWDEEPEDIT,110,55,36,13,ES_RIGHT | ES_AUTOHSCROLL | WS_DISABLED
+    CONTROL         "",IDC_CAPSHADOWDEEPSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | 
+					UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS | WS_DISABLED,110,55,11,14
+	RTEXT           "",IDC_CAPSHADOWCOLORTEXT,150,57,40,8,WS_DISABLED
+    PUSHBUTTON      "",IDC_CAPSHADOWCOLOR,193,54,36,14,WS_DISABLED
+	CONTROL         "",IDC_CAPSHOWICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,74,222,10
+	CONTROL         "",IDC_CAPSMALLICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,84,222,10
+
+	GROUPBOX        "",IDC_INFOPANETEXT,7,101,236,90
+	LTEXT           "",IDC_PANEFONTNAMETEXT,14,112,144,8
+	COMBOBOX        IDC_PANEFONTNAMECOMBO,14,121,144,132,CBS_DROPDOWNLIST | CBS_SORT | CBS_HASSTRINGS | 
+					CBS_NOINTEGRALHEIGHT | CBS_OWNERDRAWFIXED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDC_PANEFONTSIZETEXT,164,112,72,8
+    COMBOBOX        IDC_PANEFONTSIZECOMBO,164,121,40,132,CBS_DROPDOWN | CBS_NOINTEGRALHEIGHT | 
+                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_PANEFONTBOLD,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,208,121,14,13
+    CONTROL         "",IDC_PANEFONTITALIC,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_VCENTER | BS_PUSHLIKE | WS_TABSTOP,222,121,14,13
+	LTEXT           "",IDC_PANETEXTCOLORTEXT,14,139,40,8
+    PUSHBUTTON      "",IDC_PANETEXTCOLOR,14,148,36,14
+	CONTROL         "",IDC_PANEDRAWSHADOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,60,138,176,10
+	GROUPBOX        "",IDC_STATIC,60,144,176,23
+	RTEXT           "",IDC_PANESHADOWDEEPTEXT,67,153,40,8,WS_DISABLED
+    EDITTEXT        IDC_PANESHADOWDEEPEDIT,110,151,36,13,ES_RIGHT | ES_AUTOHSCROLL | WS_DISABLED
+    CONTROL         "",IDC_PANESHADOWDEEPSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | 
+					UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS | WS_DISABLED,110,151,11,14
+	RTEXT           "",IDC_PANESHADOWCOLORTEXT,150,153,40,8,WS_DISABLED
+    PUSHBUTTON      "",IDC_PANESHADOWCOLOR,193,150,36,14,WS_DISABLED
+	
+	LTEXT           "",IDC_PANEHEIGHTTEXT,14,165,40,8
+    EDITTEXT        IDC_PANEHEIGHTEDIT,14,174,36,13,ES_RIGHT | ES_AUTOHSCROLL
+    CONTROL         "",IDC_PANEHEIGHTSPIN,"msctls_updown32",UDS_AUTOBUDDY | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | 
+					UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS,14,174,11,14
+
+	RTEXT           "",IDC_PANEFORMATTEXT,57,176,48,8
+	COMBOBOX        IDC_PANEFORMATCOMBO,108,174,128,132,CBS_DROPDOWNLIST | 
+					CBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+//-----------------------------------------------------------------
+
+IDD_HOTKEYSPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	CONTROL         "",IDC_REPLACEALTTAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,236,10
+	CONTROL         "",IDC_INSTANCESWITCHER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,17,236,10
+	CONTROL         "",IDC_STICKYALTTAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,27,236,10
+	CONTROL         "",IDC_HOOKALTTAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,37,236,10
+
+	GROUPBOX        "",IDC_TSXPCONTROLTEXT,7,51,236,92
+	LTEXT           "",IDC_APPLISTHKTEXT,14,63,100,8
+	EDITTEXT        IDC_APPLISTHK,136,61,100,13,ES_AUTOHSCROLL	
+	LTEXT           "",IDC_INSTLISTHKTEXT,14,79,100,8
+	EDITTEXT        IDC_INSTLISTHK,136,77,100,13,ES_AUTOHSCROLL
+	LTEXT           "",IDC_CONFIGHKTEXT,14,96,120,8
+	EDITTEXT        IDC_CONFIGHK,136,94,100,13,ES_AUTOHSCROLL	
+	LTEXT           "",IDC_SHOWHIDEHKTEXT,14,112,120,8
+	EDITTEXT        IDC_SHOWHIDEHK,136,110,100,13,ES_AUTOHSCROLL
+	LTEXT           "",IDC_EXITHKTEXT,14,128,120,8
+	EDITTEXT        IDC_EXITHK,136,126,100,13,ES_AUTOHSCROLL
+
+	GROUPBOX        "",IDC_ADDHKTEXT,7,147,236,44
+	LTEXT           "",IDC_MINIMIZETRAYHKTEXT,14,160,120,8
+	EDITTEXT        IDC_MINIMIZETRAYHK,136,158,100,13,ES_AUTOHSCROLL
+	LTEXT           "",IDC_RESTORETRAYHKTEXT,14,176,120,8
+	EDITTEXT        IDC_RESTORETRAYHK,136,174,100,13,ES_AUTOHSCROLL
+END
+
+//-----------------------------------------------------------------
+
+IDD_EXCLUSIONSPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	CONTROL         "",IDC_EXCLLIST,"SysListView32",LVS_REPORT | LVS_NOSORTHEADER |
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | 
+                    WS_BORDER | WS_TABSTOP,7,7,236,168
+	PUSHBUTTON      "",IDC_EXCLNEW,7,178,65,14
+	PUSHBUTTON      "",IDC_EXCLEDIT,110,178,65,14,WS_DISABLED
+	PUSHBUTTON      "",IDC_EXCLREMOVE,178,178,65,14,WS_DISABLED
+END
+
+//-----------------------------------------------------------------
+
+IDD_ADVANCEDPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	GROUPBOX        "",IDC_CAPTIONSTEXT,7,5,236,25
+	CONTROL         "",IDC_OWNERCAPTION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,16,222,10
+
+	GROUPBOX        "",IDC_ADVANCEDTEXT,7,33,236,33
+	CONTROL         "",IDC_REMOVECAPTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,44,222,10
+	CONTROL         "",IDC_REMOVEPANE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,54,222,10	
+
+	GROUPBOX        "",IDC_TRAYACTIONSTEXT,7,70,236,62
+	LTEXT           "",IDC_TRAYMENUTEXT,14,80,108,8
+	COMBOBOX        IDC_TRAYMENUCOMBO,14,89,108,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+	LTEXT           "",IDC_TRAYCONFIGTEXT,128,80,108,8
+	COMBOBOX        IDC_TRAYCONFIGCOMBO,128,89,108,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+	LTEXT           "",IDC_TRAYNEXTTEXT,14,105,108,8
+	COMBOBOX        IDC_TRAYAPPCOMBO,14,114,108,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+	LTEXT           "",IDC_TRAYPREVTEXT,128,105,108,8
+	COMBOBOX        IDC_TRAYINSTCOMBO,128,114,108,132,CBS_DROPDOWNLIST | CBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+
+	GROUPBOX        "",IDC_CFGSETTINGSTEXT,7,137,236,54
+	CONTROL         "",IDC_CFGTOPMOST,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,148,222,10
+	//CONTROL         "Show configuration window on the taskbar",IDC_CFGTASKBAR,"Button",
+    //                BS_AUTOCHECKBOX | WS_TABSTOP,14,130,222,10
+	CONTROL         "",IDC_CFGPOSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,158,222,10
+	CONTROL         "",IDC_CFGLASTPAGE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,168,222,10	
+	CONTROL         "",IDC_CFGTASKSWITCHXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,178,222,10	
+END
+
+//-----------------------------------------------------------------
+
+IDD_ABOUTPAGE DIALOGEX 0, 0, 250, 196
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+	ICON            IDI_TASKSWITCHXP48,IDC_STATIC,12,10,48,48,SS_REALSIZEIMAGE
+	LTEXT           "TaskSwitchXP Pro 2.0.11",IDC_STATIC,52,10,191,8
+	LTEXT           "Copyright © 2004-2006 by Alexander Avdonin",IDC_STATIC,52,21,191,8
+	CONTROL         "<A id=""idHome"" href=""http://www.ntwind.com/taskswitchxp/"">http://www.ntwind.com/taskswitchxp/</A>",
+					IDC_HOMELINK,"SysLink",WS_TABSTOP,52,32,191,8
+	CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,46,236,1
+	CONTROL         "",IDC_ABOUTCONSOLE,"Static",SS_BLACKRECT,7,51,236,116
+	CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,171,236,1
+	CONTROL         "",IDC_TRANSLATORINFO,"SysLink",WS_TABSTOP,7,176,236,20
+END
+
+//-----------------------------------------------------------------
+
+IDD_EXCLUDEWND DIALOGEX 0, 0, 250, 250
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+	LTEXT           "",IDC_ENUMTREETEXT,7,7,236,8
+    CONTROL         "",IDC_ENUMTREE,"SysTreeView32",TVS_DISABLEDRAGDROP |
+					TVS_FULLROWSELECT | TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | 
+					TVS_SHOWSELALWAYS | TVS_TRACKSELECT | WS_BORDER | WS_TABSTOP,7,16,236,65
+	LTEXT           "",IDC_EWEXCLUDED,7,84,160,8
+	PUSHBUTTON      "",IDC_EWUPDATE,173,84,70,14
+
+	CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,101,236,1
+
+	LTEXT           "",IDC_EWNAMETEXT,7,110,87,8
+	EDITTEXT        IDC_EWNAMEEDIT,96,108,147,13,ES_AUTOHSCROLL
+
+	GROUPBOX        "",IDC_EWBYTEXT,7,126,236,60
+	CONTROL         "",IDC_EWBYPROCESS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,138,80,10
+	EDITTEXT        IDC_EWBYPROCESSEDIT,96,137,140,13,ES_AUTOHSCROLL
+	CONTROL         "",IDC_EWBYCLASS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,154,80,10
+	EDITTEXT        IDC_EWBYCLASSEDIT,96,153,140,13,ES_AUTOHSCROLL
+	CONTROL         "",IDC_EWBYCAPTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,170,80,10
+	EDITTEXT        IDC_EWBYCAPTIONEDIT,96,169,140,13,ES_AUTOHSCROLL
+
+	GROUPBOX        "",IDC_EWFROMTEXT,7,192,236,34
+	CONTROL         "",IDC_EWFROMPREVIEW,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,14,203,222,10
+	CONTROL         "",IDC_EWFROMENUM,"Button",BS_AUTORADIOBUTTON,14,213,222,10
+
+	CONTROL         "",IDC_EWENABLED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,236,120,10
+
+	DEFPUSHBUTTON   "",IDC_EWOK,130,231,55,15
+    PUSHBUTTON      "",IDC_EWCANCEL,188,231,55,15
+END
+
+//-----------------------------------------------------------------
+// String Table
+
+STRINGTABLE 
+BEGIN
+    IDS_LANGNAME			"English (default)"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CAPTION				"TaskSwitchXP Pro 2.0 Configuration"
+	IDS_OK					"OK"
+    IDS_CANCEL				"Cancel"
+	IDS_APPLY				"Apply"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_CFGFILTER			"TaskSwitchXP Configuration Files (*.cfg)"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_PREFERENCESPAGE     "General"
+	IDS_APPEARANCEPAGE      "Appearance"
+	IDS_LISTPAGE			"Task List"
+	IDS_PREVIEWPAGE			"Preview"
+	IDS_INFOPAGE			"Task Info"
+	IDS_HOTKEYSPAGE			"Hotkeys"
+	IDS_EXCLUSIONSPAGE		"Exclusions"
+	IDS_ADVANCEDPAGE		"Advanced"
+	IDS_ABOUTPAGE           "About"
+
+	IDS_PREFERENCESEXPAGE   "General Settings"
+	IDS_APPEARANCEEXPAGE    "Appearance Settings"
+	IDS_LISTEXPAGE			"Task List"
+	IDS_PREVIEWEXPAGE		"Preview Settings"
+	IDS_INFOEXPAGE			"Task Information"
+	IDS_HOTKEYSEXPAGE		"TaskSwitchXP Hot Keys"
+	IDS_EXCLUSIONSEXPAGE	"TaskSwitchXP Exclusions"
+	IDS_ADVANCEDEXPAGE		"Advanced Settings"
+	IDS_ABOUTEXPAGE         "About TaskSwitchXP"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_LANGUAGETEXT		"Language:"
+	IDS_LANGLINK			"<a id=""idLang"" href="""">Find more translations...</a>"
+	IDS_PERUSERSETTINGS		"Use separate settings for each user in the system"
+	IDS_AUTOSTART			"Autostart TaskSwitchXP on system startup"
+	IDS_HIGHPRIORITY		"Set high priority for TaskSwitchXP"
+	IDS_CHECKMSTS			"Check for Ms PowerToy TaskSwitcher running"
+	IDS_TRAYICONSTEXT		"Tray icons:"
+	IDS_SHOWTRAYICON		"Show TaskSwitchXP system tray icon on start"
+	IDS_USECUSTOMICON		"Use custom icon:"
+	IDS_EXTMOUSE			"Minimize windows to tray by right-click on Minimize button"
+	IDS_RELOADICONS			"Keep TaskSwitchXP tray icons from WinXP auto-hide feature"
+	IDS_ENUMTRAY			"Add minimized to tray windows to the end of Alt-Tab list"
+
+	IDS_RESTOREDEFAULTS		"Restore defaults"
+	IDS_IMPORTSETTINGS		"Load..."
+	IDS_EXPORTSETTINGS		"Save..."
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_SCREENPOSTEXT		"Position on screen:"
+	IDS_ACTIVEMONITOR		"Show on active monitor"
+	IDS_DROPSHADOW			"Drop shadow on TaskSwitchXP window"
+	IDS_TRANSPARENCY		"Enable transparency for TaskSwitchXP window:"
+	IDS_FADEIN				"Enable fade in animation (in milliseconds):"
+	IDS_FADEOUT				"Enable fade out animation (in milliseconds):"
+	IDS_DRAWMODESTEXT		"Preferred draw modes:"
+	IDS_VISUALMODETEXT		"XP Visual style:"
+	IDS_CLASSICMODETEXT		"Classic style:"
+	IDS_NOVISUALSTYLES		"Force use TaskSwitchXP Classic style"
+	IDS_LEFTRIGHT			"Left-right pane order"
+
+    IDS_SCREENPOS0			"Top - Left"
+	IDS_SCREENPOS1			"Top - Center"
+	IDS_SCREENPOS2			"Top - Right"
+	IDS_SCREENPOS3			"Center - Left"
+	IDS_SCREENPOS4			"Centered"
+	IDS_SCREENPOS5			"Center - Right"
+	IDS_SCREENPOS6			"Bottom - Left"
+	IDS_SCREENPOS7			"Bottom - Center"
+	IDS_SCREENPOS8			"Bottom - Right"
+
+	IDS_VISUALMODE0			"Start Panel style (default)"
+	IDS_VISUALMODE1			"PowerToy TaskSwitcher style"
+	IDS_VISUALMODE2			"Simple Window style"
+	IDS_VISUALMODE3			"Flat XP style"
+	IDS_VISUALMODE4			"Soft XP style"
+	IDS_VISUALMODE5			"TaskBar style"
+
+	IDS_CLASSICMODE0		"Start Panel style (default)"
+	IDS_CLASSICMODE1		"Flat Start Panel style"
+END
+
+
+STRINGTABLE 
+BEGIN
+	IDS_LISTSTYLETEXT		"List view:"
+	IDS_ICONSXTEXT			"Number of columns:"
+	IDS_LISTWIDTHTEXT		"Width (in pixels):"
+	IDS_ICONSYTEXT			"Number of lines:"
+	IDS_SMALLICONS			"Small icons"
+	IDS_SHOWTOOLTIPS		"Enable tooltips for icon list"
+	IDS_HOTTRACK			"Enable cursor hand for hot-tracked item"
+	IDS_MOUSEOVER			"Enable mouse hot-tracking selection"
+	IDS_INVERSEWHEEL		"Inverse mouse wheel"
+	IDS_SELSTYLETEXT		"Selection style:"
+	IDS_DRAWFOCUSRECT		"Draw focus rectangle"
+	IDS_LISTFONTTEXT		"Text style and colors:"
+	IDS_LISTFONTNAMETEXT	"Font:"
+	IDS_LISTFONTSIZETEXT	"Size:"
+	IDS_LISTFONTBOLD		"B"
+	IDS_LISTFONTITALIC		"I"
+	IDS_LCOLORTEXT			"Color index:"
+
+	IDS_LISTSTYLE0			"Icons"
+	IDS_LISTSTYLE1			"Vertical list"
+
+	IDS_SELSTYLE0			"Frame"
+	IDS_SELSTYLE1			"Filled rectangle"
+	IDS_SELSTYLE2			"Rounded rectangle"
+
+	IDS_LCOLOR0				"Plain text"
+	IDS_LCOLOR1				"Selected text"
+	IDS_LCOLOR2				"Selection background"
+	IDS_LCOLOR3				"Marked text 1"
+	IDS_LCOLOR4				"Mark background 1"
+	IDS_LCOLOR5				"Marked text 2"
+	IDS_LCOLOR6				"Mark background 2"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_PVSTYLETEXT			"Preview style:"
+	IDS_PVDESKTOPSTYLE		"""Desktop"" preview style"
+	IDS_PVWINDOWSTYLE		"""Window"" preview style"
+	IDS_PVTASKBAR			"Include Windows taskbar to preview image"
+	IDS_PVPOPUPONLY			"Draw only latest popup window of application"
+	IDS_PVOLDSTYLE			"Don't draw desktop background in preview (old v1.0 style)"
+	IDS_PVWALLPAPER			"Paint desktop wallpaper as background"
+	IDS_PVDRAWBORDER		"Draw border around preview image"
+	IDS_PVVCENTER			"Center preview image vertically"
+	IDS_PVSHOWMINIMIZED		"Show minimized window captions in preview (*)"
+	IDS_PVEXCLUDELAYERED	"Exclude all transparent windows from preview (*)"
+	IDS_PVWIDTHTEXT			"Width of preview image (in pixels):"
+	IDS_PVDELAYTEXT			"Delay of first preview generation (in milliseconds):"
+	IDS_PVNOCACHE			"Don't cache preview images"
+	IDS_PVLIVEUPDATE		"Enable preview live update (in milliseconds):"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_CAPPANETEXT			"Caption pane:"
+	IDS_CAPFONTNAMETEXT		"Font:"
+	IDS_CAPFONTSIZETEXT		"Size:"
+	IDS_CAPFONTBOLD			"B"
+	IDS_CAPFONTITALIC		"I"
+	IDS_CAPTEXTCOLORTEXT	"Color:"
+	IDS_CAPDRAWSHADOW		"Draw shadow:"
+	IDS_CAPSHADOWDEEPTEXT	"Deep:"
+	IDS_CAPSHADOWCOLORTEXT	"Color:"
+	IDS_CAPSHOWICON			"Show application icon in caption pane"
+	IDS_CAPSMALLICON		"Use small caption pane"
+	IDS_INFOPANETEXT		"Info pane:"
+	IDS_PANEFONTNAMETEXT	"Font:"
+	IDS_PANEFONTSIZETEXT	"Size:"
+	IDS_PANEFONTBOLD		"B"
+	IDS_PANEFONTITALIC		"I"
+	IDS_PANETEXTCOLORTEXT	"Color:"
+	IDS_PANEDRAWSHADOW		"Draw shadow:"
+	IDS_PANESHADOWDEEPTEXT	"Deep:"
+	IDS_PANESHADOWCOLORTEXT	"Color:"
+	IDS_PANEHEIGHTTEXT		"Height:"
+	IDS_PANEFORMATTEXT		"Format:"
+
+	IDS_PANEFORMAT0			"None"
+	IDS_PANEFORMAT1			"Task number only"
+	IDS_PANEFORMAT2			"Process ID"
+	IDS_PANEFORMAT3			"Process Name"
+	IDS_PANEFORMAT4			"Process Name  [PID]"
+	IDS_PANEFORMAT5			"Program Description"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_REPLACEALTTAB		"Replace standard Windows Alt-Tab task switcher"
+	IDS_INSTANCESWITCHER	"Enable instance switcher by Ctrl+Alt+[Shift]+Tab"
+	IDS_STICKYALTTAB		"Enable Alt-Tab ""sticky"" mode"
+	IDS_HOOKALTTAB			"Use low-level keyboard hook to replace Alt-Tab"
+	IDS_TSXPCONTROLTEXT		"TaskSwitchXP control:"
+	IDS_APPLISTHKTEXT		"Applications list:"
+	IDS_INSTLISTHKTEXT		"Instances list:"
+	IDS_CONFIGHKTEXT		"Configure TaskSwitchXP:"
+	IDS_SHOWHIDEHKTEXT		"Show/Hide system tray icon:"
+	IDS_EXITHKTEXT			"Exit TaskSwitchXP:"
+	IDS_ADDHKTEXT			"Additional hotkeys:"
+	IDS_MINIMIZETRAYHKTEXT	"Minimize window to tray:"
+	IDS_RESTORETRAYHKTEXT	"Restore from tray:"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_EXCLNEW				"New..."
+	IDS_EXCLEDIT			"Edit..."
+	IDS_EXCLREMOVE			"Remove"
+
+	IDS_EXCLPREVIEWGROUP	"Preview drawing"
+	IDS_EXCLENUMGROUP		"Window enumeration"
+
+	IDS_EXCLNAME			"Name"
+	IDS_EXCLPARAMS			"Parameters"
+END	
+
+STRINGTABLE 
+BEGIN
+	IDS_CAPTIONSTEXT		"Window titles:"
+	IDS_OWNERCAPTION		"Use captions of main applications windows"
+	IDS_ADVANCEDTEXT		"Advanced interface settings:"
+	IDS_REMOVECAPTION		"Remove caption pane"
+	IDS_REMOVEPANE			"Remove info pane"
+	IDS_TRAYACTIONSTEXT		"Tray icon actions:"
+	IDS_TRAYMENUTEXT		"Context menu:"
+	IDS_TRAYCONFIGTEXT		"Configuration:"
+	IDS_TRAYNEXTTEXT		"Applications list:"
+	IDS_TRAYPREVTEXT		"Instances list:"
+	IDS_CFGSETTINGSTEXT		"Configurator settings:"
+	IDS_CFGTOPMOST			"Show configuration window always on top"
+	IDS_CFGPOSITION			"Remember configuration window position"
+	IDS_CFGLASTPAGE			"Remember last configuration page"
+	IDS_CFGTASKSWITCHXP		"Start TaskSwitchXP on start/close"
+
+	IDS_TRAYACTION0			"None"
+	IDS_TRAYACTION1			"Left mouse click"
+	IDS_TRAYACTION2			"Left mouse double-click"
+	IDS_TRAYACTION3			"Middle mouse click"
+	IDS_TRAYACTION4			"Middle mouse double-click"	
+	IDS_TRAYACTION5			"Right mouse click"
+	IDS_TRAYACTION6			"Right mouse double-click"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_TRANSLATORINFO		"Visit the <A id=""idTranslatorHome"" href=""http://www.ntwind.com/taskswitchxp/"">TaskSwitchXP website</A> for the latest news, FAQs and support.\r\nIf you wish to submit an idea or suggestion, welcome to my <A id=""idTranslatorMail"" href=""http://www.ntwind.com/forum/"">my board</A>."
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_EXCLUDEWND          "TaskSwitchXP Exclusion"
+	IDS_EWOK				"OK"
+	IDS_EWCANCEL			"Cancel"
+	IDS_ENUMTREETEXT		"Active applications:"
+	IDS_EWUPDATE			"Update"
+	IDS_EWNAMETEXT			"Exclusion name:"
+	IDS_EWBYTEXT			"Exclude by:"
+	IDS_EWBYPROCESS			"Process name:"
+	IDS_EWBYCLASS			"Window class:"
+	IDS_EWBYCAPTION			"Window title:"
+	IDS_EWFROMTEXT			"Exclude from:"
+	IDS_EWFROMPREVIEW		"preview drawing"
+	IDS_EWFROMENUM			"window enumeration"
+	IDS_EWENABLED			"Enabled"
+
+	IDS_EWEXCLUDED0			""
+	IDS_EWEXCLUDED1			">> excluded from preview"
+	IDS_EWEXCLUDED2			">> excluded from enumeration"
+END	
+
+
+STRINGTABLE 
+BEGIN
+	IDS_ERRCAPTION			"TaskSwitchXP Configurator Error"
+	IDS_ERR_LANGFILE		"Could not load language file."
+	IDS_ERR_NOTASKSWITCH	"Could not start TaskSwitchXP.exe! Check your TaskSwitchXP installation."
+	IDS_ERR_SAVESETTINGS	"Could not save settings into registry. Check your access rights."
+
+	IDS_ERR_IMPORT			"Could not load settings from file."
+	IDS_ERR_DEFIMPORT		"Could not load settings from file. Default settings are restored."
+	IDS_ERR_EXPORT			"Could not save settings to file."	
+END
+
+
+STRINGTABLE 
+BEGIN
+	IDS_CONFIRMCAPTION		"TaskSwitchXP Confirmation"
+	//IDS_CONFIRMALLUSERS		"Do you want reload settings for all users?\r\n(Press No to use current settings.)"
+	//IDS_CONFIRMCURUSER		"Do you want reload settings for current user?\r\n(Press No to use current settings.)"	
+	IDS_MULTIMONITOR		"TaskSwitchXP has detected more than one display monitors are active in your system.\r\nDo you want to enable ""Window"" preview mode to show all previews from secondary monitor(s)?"
+END
+
+STRINGTABLE 
+BEGIN
+	IDS_ERR_EWNAMETITLE			"Unnamed exclusion"
+	IDS_ERR_EWNAME				"Please specify a exclusion name."
+	IDS_ERR_EWBYPARAMSTITLE		"No parameters"
+	IDS_ERR_EWBYPARAMS			"Please specify a exlusion parameter(s)."
+	IDS_ERR_EWBYPROCESSTITLE	"No process name"
+	IDS_ERR_EWBYPROCESS			"Please specify a process name."
+	IDS_ERR_EWBYCLASSTITLE		"No window class"
+	IDS_ERR_EWBYCLASS			"Please specify a window class."
+END
+
+//-----------------------------------------------------------------

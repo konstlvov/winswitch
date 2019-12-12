@@ -1,0 +1,368 @@
+=-=-=-=-=-=-=-=-=-=-=-=
+History of TaskSwitchXP
+=-=-=-=-=-=-=-=-=-=-=-=
+
+[!] Important
+[+] New
+[-] Fixed error
+[*] Changes
+
+
+Version 2.0.11                          8/08/2006
+=================================================
+
+[+] New interface languages (30+ now).
+[-] Issue with a virus false positive in NSIS installer was fixed.
+[-] Some issues with multi-monitor support were fixed.
+[-] Some small bugs were fixed.
+
+
+Version 2.0.10                         25/06/2006
+=================================================
+
+[+] New interface languages.
+[-] Issue with disabled balloon tips was fixed
+[-] Small issue with task switching was finally fixed.
+[-] Some small bugs were fixed.
+
+
+Version 2.0.10                         20/05/2006
+=================================================
+
+[+] TaskSwitchXP now can work on multiple desktops.
+[*] Sticky Alt+Tab+Tab works like as normal Alt+Tab.
+[*] Corrections and updates in language files.
+[-] Some issues with WindowBlinds themes were fixed.
+[-] Small issue with window enumeration was fixed.
+[-] One more small issue with task switching was fixed.
+
+
+Version 2.0.9                           4/02/2006
+=================================================
+
+[+] New interface languages.
+[*] Improved animation for minimizing to tray.
+[+] Second press of the sticky hotkey works now like as Enter.
+[-] Bug with MSN Messenger conversation window was fixed.
+[-] Bug with switching to multiple windows was fixed.
+[-] Bug of installer with unsupported language was fixed.
+[-] Bug with MS Office Outlook message icon was fixed.
+[-] Some issues with text colors were fixed.
+[-] Some small bugs were fixed.
+
+
+Version 2.0.8                          25/08/2005
+=================================================
+
+[+] New interface languages.
+[+] Google Sidebar (http://desktop.google.com) now is visible on the preview.
+[-] Some issues with task switching (in v2.07) were fixed.
+[-] Some small bugs were fixed.
+
+
+Version 2.0.7                          27/07/2005
+=================================================
+
+[+] New interface languages.
+[-] Small bug with focus was fixed.
+[-] Small bug with fast Alt+Tab was fixed.
+[*] Some cosmetical fixes in installer.
+
+
+Version 2.0.6                          18/07/2005
+=================================================
+
+[!] Considerable preview speed improvement!
+[+] New interface languages (17+!).
+[+] Ability to add minimized to tray windows to the end of Alt-Tab list.
+[+] Some new shortcut keys (preferences, sticky, etc).
+[+] Some new command line parameters.
+[+] Some new "secret" features (http://www.ntwind.com/forum/). ;)
+[-] One more small issue with minimizing to tray was fixed.
+[-] One more small issue with colors was fixed.
+[-] Some small bugs were fixed.
+
+
+Version 2.0.5                          12/04/2005
+=================================================
+
+[!] First official 2.0 release: new homepage, new features and languages! 
+[!] First German translation (by Markus Schuster aka eVo)! 
+[!] First Russian translation! 
+[!] Multilingual user interface!!! 
+[!] New help docs were added. 
+[-] Default preview mode for multiple monitors was fixed. 
+[-] Small bug with restricted user accounts was fixed. 
+[-] Small bugs with default colors were fixed. 
+[-] Small bug with minimizing to tray was fixed. 
+[-] Some small bugs were fixed. 
+
+
+Version 2.0.4 beta                     25/02/2005
+=================================================
+
+[*] TaskSwitchXP now restores tray icons after Explorer crashes.
+[*] Middle-click on blank area marks item as multiple selected.
+[-] Some bugs with tray icon actions were fixed.
+[-] Some bugs with window enumeration were fixed.
+[-] Memory leak with rounded selection style was fixed.
+[*] Some stability and performance fixes.
+
+
+Version 2.0.3 alpha                    14/02/2005
+=================================================
+
+[!] List multiple selections.
+[!] Context menus.
+[+] New window and task management commands.
+[+] List sorting by title and filename.
+[+] 5 new interface schemes.
+[+] Configurable info pane formats.
+[+] Configurable info pane and list fonts.
+[+] New list selection style.
+[+] Menus for minimized to system tray apps.
+[+] New option "Keep TaskSwitchXP tray icons from WinXP auto-hide feature".
+[+] New option "Show on active monitor".
+[+] New option "Exclude all layered windows from preview" (troubleshooting).
+[+] "Sticky" mode for alt-tab.
+[+] Fade out animation.
+[+] Some new shortcut keys.
+[*] Some default settings were changed.
+[-] Bugs with window enumeration were fixed!!!
+[-] Some bugs with long exe paths were fixed.
+[-] Some bugs with hot-tracking selection were fixed.
+[-] Bug with Alt+Win+[Shift]+Tab was fixed.
+[-] Bug with minimized MSN Messenger Conversation window was fixed.
+[-] Some small bugs with minimizing to tray were fixed.
+[-] Some small bugs were fixed.
+[*] Some stability and performance fixes.
+
+
+Version 1.1.2 alpha                    19/01/2005
+=================================================
+
+[+] New improved tray menu with quick preferences.
+[+] TaskSwitchXP now detects Ms PowerToy TaskSwitcher running.
+[+] Minimizing windows to system tray.
+[+] Desktop wallpaper caching.
+[+] Old v1.0 style of preview image (without desktop background).
+[+] Fade in animation.
+[+] Cursor hand for hot-tracked item.
+[+] Task closing and killing.
+[+] Some new shortcut keys.
+[*] Some default settings were changed.
+[-] Some bugs with Instance Switcher were fixed.
+[-] Some small bugs were fixed.
+[*] Some stability and performance fixes.
+
+
+Version 1.1.1 alpha                    14/12/2004
+=================================================
+
+[*] New configurator interface.
+[+] Advanced settings.
+[+] TaskSwitchXP exclusions.
+[+] Info pane settings.
+[+] Instance switcher.
+[+] Low level AltTab hooking.
+[+] Configurable hotkeys.
+[+] Extended task information (click on preview image or press F1).
+[*] New "Window" preview style.
+[*] Option "Don't create exclusion region for window preview" was removed.
+[-] Bug with multiple instances of configurator was fixed.
+[-] Bug with service messages was fixed.
+[-] Some small bugs were fixed.
+[*] Some stability and performance fixes.
+
+
+Version 1.1.0 alpha                     8/11/2004
+=================================================
+
+[+] TaskSwitchXP draw modes (+ PowerToy TaskSwitcher style).
+[+] Vertical window titles list and small icons list.
+[+] Configurable list sizes, selection style and colors.
+[+] Preview of all application windows.
+[+] Preview images caching.
+[+] Preview live update.
+[+] "Desktop" preview mode.
+[+] Configurable generation delay and size of preview image.
+[+] Multiple monitor support.
+[+] System tray icon.
+
+
+Version 1.0.27 (final after final)     14/10/2004
+=================================================
+
+[-] Some small bugs were fixed.
+
+
+Version 1.0.26 (final)                  7/10/2004
+=================================================
+
+[-] Some small bugs were fixed.
+
+
+Version 1.0.25                          5/10/2004
+=================================================
+
+[*] Parameter "Set high priority for TaskSwitchXP" now is enabled by default.
+[*] Memory usage optimization!
+
+
+Version 1.0.24                          3/10/2004
+=================================================
+
+[+] TaskSwitchXP documentation.
+[-] Bug with minimized layered windows was fixed (disabling transparency).
+[-] Bug with some hidden windows was fixed (same as Muxasoft Dialer, BeFaster).
+[-] Some small bugs with hung and debugged applications were fixed.
+[*] Some cosmetical changes.
+
+
+Version 1.0.23                         30/09/2004
+=================================================
+
+[-] Some small bugs with window switching algorithm were fixed.
+[-] Bug with multiple exit confirmations was fixed.
+[*] Some cosmetical changes.
+
+
+Version 1.0.22                         26/09/2004
+=================================================
+
+[*] Default TaskSwitchXP window sizes were changed.
+[*] New task info format (image name, PID).
+[-] Some small bugs were fixed.
+
+
+Version 1.0.21                         25/09/2004
+=================================================
+
+[-] Bug with same windows (like an edit message in The Bat!) now was fixed.
+[-] Some small bugs were fixed.
+[*] Some optimization.
+
+
+Version 1.0.20                         19/09/2004
+=================================================
+
+[+] Mouse over selection for icon list.
+[+] "Enable mouse over selection for icon list" configuration parameter.
+[-] Bug with same Firefox windows (1.0.18) was fixed.
+
+
+Version 1.0.19                         16/09/2004
+=================================================
+
+[-] Bug with autostart registry string in previous version (1.0.18) was fixed.
+[-] Some small bugs were fixed.
+
+
+Version 1.0.18                         15/09/2004
+=================================================
+
+[*] New better installer.
+[*] New window switching algorithm.
+[*] New particular keystrokes listening algorithm (similar to version 1.0.10 
+    with RegisterHotKey).
+[*] New window switching algorithm (with SwitchToThisWindow).
+[+] TaskSwitchXP now can reload configuration settings (restart is not
+    required).
+[-] Bug with floating toolbars was fixed.
+[-] Bug with unexpected TaskSwitchXP window destroy was fixed.
+[-] Bugs with full-screen console and 3D applications were fixed.
+[-] Bug with owned tool windows (same as PSPad dialogs) was fixed.
+[-] Bug with minimized window restore was fixed.
+[-] Small bug with selection of first inactive window was fixed.
+[-] Some small bugs were fixed.
+
+
+Version 1.0.17                          8/09/2004
+=================================================
+
+[-] Bugs with AltTab hook in previous version (1.0.16) were fixed.
+[-] Bug with 2-Alt+Tab was fixed.
+[-] Bug with multiple owned windows of same owner was fixed.
+
+
+Version 1.0.16                          5/09/2004
+=================================================
+
+[-] Bug with console windows was fixed.
+[-] Bug with full-screen applications was fixed.
+[-] Some small bugs were fixed.
+
+
+Version 1.0.15                         31/08/2004
+=================================================
+
+[!] TaskSwitchXP distributes only as special build (without CRT).
+[-] Small bug with Esc key was fixed.
+[-] Some small bugs were fixed.
+[*] Some optimization.
+
+
+Version 1.0.14                         30/08/2004
+=================================================
+
+[+] Selection by mouse wheel for icon list.
+[+] "Inverse mouse wheel" configuration parameter.
+[-] Bug with minimized owner window was fixed.
+[*] Keyboard hook was optimized.
+[*] Some optimization.
+
+
+Version 1.0.13                         28/08/2004
+=================================================
+
+[*] New window switching algorithm (over and over again).
+[!] First TaskSwitchXP special build (without CRT) - even SMALLER!!!
+
+
+Version 1.0.12                         25/08/2004
+=================================================
+
+[+] Rendering with Windows Classic style.
+[+] "Force use Windows Classic style to draw TaskSwitchXP" configuration 
+    parameter.
+[+] TaskSwitchXP now shows error icons for closed applications.
+[-] Bug with theme change was fixed.
+[-] Bug with null shadow deep was fixed.
+[-] Color of selection rectangle was fixed.
+
+
+Version 1.0.11                         19/08/2004
+=================================================
+
+[+] Keyboard navigation for icon list (use Home, End and arrow keys).
+[*] New window switching algorithm (bug with fast window switching was fixed).
+[*] New particular keystrokes listening algorithm (without RegisterHotKey).
+[*] Delay of preview generation now depends on system keyboard delay.
+[+] New configuration parameter for window preview.
+[*] Some optimization.
+
+
+Version 1.0.10                         30/07/2004
+=================================================
+
+[+] Tooltips for icon list.
+[+] Mouse control for icon list (selection and switching).
+[+] New configuration parameters for mouse control and for tooltips.
+[*] Some optimization.
+[-] Bug with "ghost-icon" was fixed.
+
+
+Version 1.0.9                          14/07/2004
+=================================================
+
+[+] "Set high priority for TaskSwitchXP" configuation parameter.
+[*] New window enumeration algorithm.
+[*] New closed applications processing.
+[-] Bugs with "hung" applications were fixed.
+[-] Some small bugs were fixed.
+
+
+Version 1.0.8                          20/06/2004
+=================================================
+
+[!] First public release.

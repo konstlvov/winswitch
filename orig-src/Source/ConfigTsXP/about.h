@@ -1,0 +1,3 @@
+// about.h
+
+INT_PTR CALLBACK Dlg_AboutProc(HWND, UINT, WPARAM, LPARAM);
