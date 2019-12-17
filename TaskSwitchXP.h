@@ -91,6 +91,7 @@ typedef struct TASKINFO {
 	PWSTR pszExePath;
 	int nExeName;
 	DWORD dwProcessId;
+	DWORD dwChildProcessId;
 
 	HWND hwndOwner;
 	HWND phWndPv[MAX_WNDPV];
