@@ -15,7 +15,7 @@
 
 #include <windows.h>
 #include <uxtheme.h>
-#include <tmschema.h>
+#include <vssym32.h>
 #pragma comment(lib, "uxtheme.lib")
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "user32.lib")

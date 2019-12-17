@@ -55,6 +55,7 @@ DWORD g_dwShowDelay				= DEFAULT_SHOWDELAY;
 HWND g_hwndFrgnd				= NULL;
 DWORD g_idThreadAttachTo		= 0;
 HWND g_hwndInfo					= NULL;
+HWND g_hwndHotkeyTooltip		= NULL;
 HWND g_hwndShell				= NULL;
 HWND g_hwndTaskbar				= NULL;
 
@@ -1204,6 +1205,30 @@ DWORD IsWindowExcluded(HWND hwnd, PCWSTR pszExeName) {
 
 #define TS_ALLOCUNIT					32
 
+//todo: this function does not work as expected and probably should be refactored or removed
+BOOL CALLBACK EnumChildWinowsCallback(HWND hwnd, LPARAM lParam) {
+	TASKINFO *pTaskInfo = (TASKINFO*)lParam;
+	DWORD pID;
+	GetWindowThreadProcessId(hwnd, &pID);
+	wsprintf(tmp, L"caption: %s hwnd: %x, pID: %x pTaskInfo->dwProcessId: %x\n", pTaskInfo->szCaption, hwnd, pID, pTaskInfo->dwProcessId); OutputDebugString(tmp);
+	if (pID != pTaskInfo->dwProcessId) {
+		pTaskInfo->dwChildProcessId = pID;
+		//
+		HANDLE hProcess = OpenProcess(
+			PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pID);
+		WCHAR szProcessImageName[MAX_PATH] = L"";
+		DWORD dSize = MAX_PATH;
+		if (!QueryFullProcessImageName(hProcess, 0, szProcessImageName, &dSize)) {
+			OutputDebugString(L"EnumChildWinowsCallback: Function QueryFullProcessImageName has failed\r\n");
+		}
+		lstrcat(pTaskInfo->szModuleName, L"###");//debug
+		lstrcat(pTaskInfo->szModuleName, szProcessImageName);//debug
+		wsprintf(tmp, L"EnumChildWinowsCallback called: %s\n", szProcessImageName);
+		OutputDebugString(tmp);
+	}
+	return true;
+}
+
 BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 
 	TASKINFO ti;
@@ -1214,6 +1239,8 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 	BOOL fSuccess = FALSE;
 
 	__try {
+	    DWORD dwStyle = GetWindowLongPtr(hwnd, GWL_STYLE);
+		DWORD dwStyleEx = GetWindowLongPtr(hwndOwner, GWL_EXSTYLE);
 
 		hProcess = OpenProcess(
 			PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, ti.dwProcessId);
@@ -1244,8 +1271,10 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 					ti.pszExePath = NULL;
 				}
 				n = GetModuleBaseName(hProcess, hMod, ti.szModuleName, len * sizeof (WCHAR) ); // this is correct
-				//wsprintf(tmp, L" process id: %d", ti.dwProcessId);
-				//lstrcat(ti.szModuleName, tmp);
+				// wsprintf(tmp, L" EnumProcessModulesEx: %d", ti.dwProcessId); // debug lstrcat(ti.szModuleName, tmp); // debug
+				//lstrcpy(ti.pszExePath, L""); // debug
+				//lstrcat(ti.pszExePath, L"*"); // debug
+				//
 				//n = GetModuleFileNameEx(hProcess, hMod, ti.szModuleName, len * sizeof (WCHAR) ); // full path, does not work for x64 processes
 				// n = GetProcessImageFileName(hProcess, ti.szModuleName, len * sizeof (WCHAR) ); // also does not work for x64 processes
                 
@@ -1257,34 +1286,34 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 
 				// snapshot of all processes seems able to retrieve 64-bit module names from within 32 bit process
 
-				/*
-				if (lstrlen(ti.szModuleName) == 0) {
-					OutputDebugString(L"yep!\r\n");
-					HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-					//if (hSnapshot == HANDLE(-1)) __raise(L"ahaaha");
-					PROCESSENTRY32 pe;
-					pe.dwSize = sizeof(PROCESSENTRY32);
-					BOOL retval = Process32First(hSnapshot, &pe);
-					while (retval) {
-					  DWORD pid = pe.th32ProcessID;
-					  if (pid == ti.dwProcessId) {
-						  OutputDebugString(pe.szExeFile);
-						  //lstrcpyn(ti.szModuleName, pe.szExeFile, MAX_PATH);
-					  }
-					  //OutputDebugString(pe.szExeFile);
-					  //OutputDebugString(L" ");
-					  //wsprintf(tmp, L" process id: %d", pid);
-					  //OutputDebugString(tmp);
-					  //OutputDebugString(L"\r\n");
-					  retval = Process32Next(hSnapshot, &pe);
-					}
-					CloseHandle(hSnapshot);
-				}
-				*/
+				
+//				if (lstrlen(ti.szModuleName) == 0) {
+//					OutputDebugString(L"yep!\r\n");
+//					HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+//					//if (hSnapshot == HANDLE(-1)) __raise(L"ahaaha");
+//					PROCESSENTRY32 pe;
+//					pe.dwSize = sizeof(PROCESSENTRY32);
+//					BOOL retval = Process32First(hSnapshot, &pe);
+//					while (retval) {
+//					  DWORD pid = pe.th32ProcessID;
+//					  if (pid == ti.dwProcessId) {
+//						  OutputDebugString(pe.szExeFile);
+//						  //lstrcpyn(ti.szModuleName, pe.szExeFile, MAX_PATH);
+//					  }
+//					  OutputDebugString(pe.szExeFile);
+//					  OutputDebugString(L" ");
+//					  wsprintf(tmp, L" process id: %d", pid);
+//					  OutputDebugString(tmp);
+//					  OutputDebugString(L"\r\n");
+//					  retval = Process32Next(hSnapshot, &pe);
+//					}
+//					CloseHandle(hSnapshot);
+//				}
+				
 			}
       else {
         DWORD dwLastError = GetLastError();
-        wsprintf(tmp, L"Failed to call EnumProcessModulesEx for process %d, error %x\r\n", ti.dwProcessId, dwLastError); OutputDebugString(tmp);
+        //wsprintf(tmp, L"Failed to call EnumProcessModulesEx for process %d, error %x\r\n", ti.dwProcessId, dwLastError); OutputDebugString(tmp);
         DWORD dSize = MAX_PATH;
 		if (!QueryFullProcessImageName(hProcess, 0, ti.szModuleName, &dSize )) {
 		  OutputDebugString(L"function QueryFullProcessImageName also has failed\r\n");
@@ -1300,6 +1329,7 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 				part = wcstok(NULL, L"\\");
 			}
 			lstrcpy(ti.szModuleName, last_part);
+			//wsprintf(tmp, L" QueryFullProcessImageName: %d", ti.dwProcessId); lstrcat(ti.szModuleName, tmp);
 			//OutputDebugString(last_part);
 			//OutputDebugString(L"\r\n");
 
@@ -1347,10 +1377,26 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 				g_pTs = (PTASKINFO)HeapReAlloc(g_hheapWnd, HEAP_GENERATE_EXCEPTIONS, 
 					g_pTs, (g_nTs + TS_ALLOCUNIT) * sizeof(TASKINFO));					
 			}
-			CopyMemory(&g_pTs[g_nTs], &ti, sizeof(TASKINFO));
-			g_nTs++;
 
-			fSuccess = TRUE;
+			//wsprintf(tmp, L"%s %x %x\n", ti.szModuleName, dwStyle, dwStyleEx); OutputDebugString(tmp);
+			if (dwStyle == 0x94000000 
+				//|| (dwStyle == 0x94cf0000 && dwStyleEx == 0x200100) 
+				) { // 0x94000000 is WS_POPUP | WS_VISIBLE | WS_CLIPSIBLINGS
+			//if (dwStyle & WS_POPUP && dwStyle & WS_VISIBLE && dwStyle & WS_CLIPSIBLINGS) {
+				__leave; // this HAS effect!
+			}
+			if (lstrcmpi(ti.szModuleName, L"ApplicationFrameHost.exe") == 0) {
+				lstrcpy(ti.szModuleName, ti.szCaption);
+				//wsprintf(tmp, L"About to call EnumChildWindows for %s\n", ti.szModuleName); OutputDebugString(tmp);
+				//EnumChildWindows(hwnd, EnumChildWinowsCallback, (LPARAM)&ti);
+			}
+
+			if (lstrlen(ti.szModuleName) > 0) {
+				//wsprintf(tmp, L"About to add task: %s", ti.szModuleName); OutputDebugString(tmp);
+				CopyMemory(&g_pTs[g_nTs], &ti, sizeof(TASKINFO));
+				g_nTs++;
+				fSuccess = TRUE;
+			}
 	}
 	__finally {
 		if (hProcess)
@@ -1360,7 +1406,6 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 	}
 	return(fSuccess);
 }
-
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM /*lParam*/) {
 
@@ -2358,6 +2403,24 @@ BOOL DrawCachedPreview(HDC hdc, HBITMAP hbitmapPv) {
 
 //-----------------------------------------------------------
 
+void DrawHotkeysHints(HDC hdc, PRECT rcHint, LPCWSTR text) {
+	WCHAR src[4096] = L"";
+	WCHAR seps[] = L"\n";
+	WCHAR *token = NULL;
+	wsprintf(src, L"%s", text);
+	token = wcstok(src, seps);
+	bool text_align_left = true; // if false it will behave as text-align: right
+	while (token != NULL) {
+		MyDrawShadowText(hdc, token, rcHint, text_align_left
+			? (DT_LEFT | DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS)
+			: (DT_RIGHT | DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS),
+			g_crPaneText, g_dwPaneShadow);
+		rcHint->top += 15;
+		token = wcstok(NULL, seps);
+	}
+	
+}
+
 void OnPaint(HDC hdc) {
 
 	if (g_nCurTs < 0 || g_nCurTs >= g_nTs)
@@ -2559,10 +2622,19 @@ void OnPaint(HDC hdc) {
 				? (DT_LEFT | DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS) 
 				: (DT_RIGHT | DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS),
 				g_crPaneText, g_dwPaneShadow);
+
+			RECT rcHint;
+			rcHint.left = g_rcPv.left;
+			rcHint.right = g_rcPv.right;
+			rcHint.top = g_rcPv.top;
+			rcHint.bottom = g_rcPv.bottom;
+			DrawHotkeysHints(hdc, &rcHint, L"F1: show/hide hotkeys info");
 		}
 		SelectObject(hdc, hfontOld);
 	}
 }
+
+
 
 //-----------------------------------------------------------
 
@@ -2581,13 +2653,10 @@ void DrawTaskListItem(HDC hdc, int nTask, const RECT* prcItem, BOOL fSmall) {
 	}
 	DrawIconEx(hdc, prcItem->left, (prcItem->top + prcItem->bottom - nHeight) / 2,
 		hIcon, nWidth, nHeight, 0, NULL, DI_NORMAL);
-
-	//WCHAR szText[MAX_CAPTION] = L"";
-	//GetTaskText(nTask, szText, SIZEOF_ARRAY(szText));
-
-	int len = lstrlen(g_pTs[nTask].szCaption);
+	WCHAR szText[MAX_CAPTION] = L"";
+	lstrcpy(szText, (g_dwFlagsList & TSFL_ALTMODE) ? g_pTs[nTask].szModuleName : g_pTs[nTask].szCaption);
+	int len = lstrlen(szText);
 	if (len <= 0) return;
-
 	SIZE size;
 	RECT rcText;
 	rcText.left = (fSmall) ? (prcItem->left + CX_SMICON + XMARGIN_SMSEL + 1) 
@@ -2595,16 +2664,12 @@ void DrawTaskListItem(HDC hdc, int nTask, const RECT* prcItem, BOOL fSmall) {
 	rcText.right = prcItem->right;
 	rcText.top = prcItem->top;
 	rcText.bottom = prcItem->bottom;
-
 	nWidth = rcText.right - rcText.left;
-
 	int *pFit = (int*)HeapAlloc(GetProcessHeap(), 0, len * sizeof(int));
 	if (pFit) {
-
 		TEXTMETRIC tm;
 		GetTextMetrics(hdc, &tm);
-
-		LPWSTR p = g_pTs[nTask].szCaption;
+		LPWSTR p = szText;
 		int nLines = 0;
 		nHeight = rcText.bottom - rcText.top;
 		while (nHeight >= tm.tmHeight && len > 0 && 
@@ -2622,10 +2687,7 @@ void DrawTaskListItem(HDC hdc, int nTask, const RECT* prcItem, BOOL fSmall) {
 			p += pFit[nLines];
 			nLines++;
 		}
-
-		//klvov:  choosing basing on task switching mode
-		if (g_dwFlagsList & TSFL_ALTMODE) p = g_pTs[nTask].szModuleName;
-		else p = g_pTs[nTask].szCaption;
+		p = szText;
 		if (nLines > 0) {
 			nHeight = nLines * (tm.tmHeight + tm.tmExternalLeading) - tm.tmExternalLeading;
 			rcText.top = (rcText.bottom + rcText.top - nHeight) / 2;
@@ -3022,9 +3084,62 @@ HWND CreateInfoTip(HWND hwndTs) {
 	return(hwndTip);
 }
 
+HWND CreateHotkeyTooltip(HWND hwndTs) {
+
+	HWND g_hwndHotkeyTooltip = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT, 
+		TOOLTIPS_CLASS, L"", (!(g_dwFlagsPv & TSFPV_DESKTOP) && g_dwFlagsPv & TSFPV_OLDSTYLE) 
+		? (WS_POPUP | TTS_NOPREFIX) : (WS_POPUP | TTS_NOPREFIX | TTS_BALLOON), 
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        hwndTs, NULL, g_hinstExe, NULL);
+	if (!g_hwndHotkeyTooltip)
+		return(NULL);
+    //SetWindowPos(g_hwndHotkeyTooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+	TOOLINFO ti;
+	ti.cbSize = sizeof(TOOLINFO);
+	ti.hinst = NULL;
+	ti.hwnd = hwndTs;
+	ti.uFlags = TTF_TRACK | TTF_ABSOLUTE | TTF_TRANSPARENT;
+	WCHAR szText[4000] = L"";	
+	lstrcatW(szText, L"Ins: select/unselect task (add it to current selection)");
+	lstrcatW(szText, L"\nBackspace: works as expected, removes last typed character");
+	lstrcatW(szText, L"\nUp, Down, Home, End - works as expected, moving across task list");
+	lstrcatW(szText, L"\nF2 - minimize selected tasks");
+	lstrcatW(szText, L"\nF4: close selected tasks");
+	lstrcatW(szText, L"\nF6: restore (bring to front) selected tasks");
+	lstrcatW(szText, L"\nF7 - maximize all selected tasks (minimize all windows with Win-D before use)");
+	lstrcatW(szText, L"\nCtrl-A - select all tasks");
+	lstrcatW(szText, L"\nCtrl-D - clear selection (mnemonic for D is \"deselect all tasks\")");
+	lstrcatW(szText, L"\nCtrl-C - cascade selected windows (minimize all windows with Win-D before use)");
+	lstrcatW(szText, L"\nCtrl-H - tile selected windows horizontally (minimize all windows with Win-D before use)");
+	lstrcatW(szText, L"\nCtrl-V - tile selected windows vertically (minimize all windows with Win-D before use)");
+	ti.lpszText = szText;
+	ti.lParam = NULL;
+	ti.lpReserved = 0;
+	ti.uId = (UINT)-1;
+	ti.rect = g_rcPv;
+
+	SendMessage(g_hwndHotkeyTooltip, TTM_ADDTOOL, 0, (LPARAM)&ti);
+	SendMessage(g_hwndHotkeyTooltip, TTM_SETMAXTIPWIDTH, 0, g_rcTs.right - g_rcTs.left);
+	SendMessage(g_hwndHotkeyTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&ti);
+
+	POINT pt;	
+	pt.x = g_rcPv.left;
+	pt.y = g_rcPv.top + 10;
+	if (!(g_dwFlagsPv & TSFPV_DESKTOP)) {
+		pt.x -= 3;
+		pt.y -= 3;
+	}
+	ClientToScreen(hwndTs, &pt);
+	SendMessage(g_hwndHotkeyTooltip, TTM_TRACKPOSITION, 0, MAKELPARAM(pt.x, pt.y));
+	SendMessage(g_hwndHotkeyTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+	SendMessage(g_hwndHotkeyTooltip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
+
+	return(g_hwndHotkeyTooltip);
+}
 
 BOOL UpdateInfoTip(int nTask) {
-	
+
 	_ASSERT(nTask >= 0 && nTask < g_nTs);
 
 	if (!g_hwndInfo)
@@ -3084,11 +3199,12 @@ BOOL UpdateInfoTip(int nTask) {
 		WCHAR szMask[MAX_LANGLEN] = L"";
 		LangLoadString(IDS_INFOTIPMASK, szMask, MAX_LANGLEN);
 
-		wsprintf(szTip, szMask, g_pTs[nTask].pszExePath 
-			? (g_pTs[nTask].pszExePath + g_pTs[nTask].nExeName) : L"N/A", g_pTs[nTask].dwProcessId, 
-			uHourDuration, uMinDuration, uSecDuration, uHourCPU, uMinCPU, uSecCPU, 
+		wsprintf(szTip, szMask, g_pTs[nTask].pszExePath
+			? (g_pTs[nTask].pszExePath + g_pTs[nTask].nExeName) : L"N/A", g_pTs[nTask].dwProcessId,
+			uHourDuration, uMinDuration, uSecDuration, uHourCPU, uMinCPU, uSecCPU,
 			pmc.WorkingSetSize / 1024, pmc.PagefileUsage / 1024);
-	} else {
+	}
+	else {
 		LangLoadString(IDS_NOTAVAILABLE, szTip, MAX_LANGLEN);
 	}
 
@@ -3102,9 +3218,8 @@ BOOL UpdateInfoTip(int nTask) {
 	SendMessage(g_hwndInfo, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
 	//SendMessage(g_hwndInfo, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
 
-    return(TRUE);
+	return(TRUE);
 }
-
 
 void ShowHideInfoTip(HWND hwndTs) {
 
@@ -3125,6 +3240,15 @@ void ShowHideInfoTip(HWND hwndTs) {
 
 			SetTimer(hwndTs, TIMER_INFOTIP, 1000, NULL);
 		}
+	}
+}
+
+void ShowHideHotkeyToolip(HWND hwndTs) {
+	if (g_hwndHotkeyTooltip) {
+		DestroyWindow(g_hwndHotkeyTooltip);
+		g_hwndHotkeyTooltip = NULL;
+	} else {
+		g_hwndHotkeyTooltip = CreateHotkeyTooltip(hwndTs);
 	}
 }
 
@@ -3620,8 +3744,7 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 					switch (wParam) {
 						case VK_F1: //klvov: testing if this works
 							//SortTaskListByModuleName(hwnd);
-							lstrcpy(g_szTypeBuffer,L"");
-							ProcessTypeBuffer(hwnd);
+							ShowHideHotkeyToolip(hwnd); //todo: ShowHideHotkeyTip(hwnd)
 							break;
 						case VK_BACK: //delete 1 character from g_szTypeBuffer
 							if ( lenb > 0){ //klvov: there is something weird with lstrcpyn functions, can't understand how they work
@@ -4271,7 +4394,7 @@ void ProcessTypeBuffer(HWND hwnd) //tag kl2
 	if (tblen <= 0)	
 	{
 		SelectTask(hwnd, 0, FALSE); 
-    return;
+		return;
 	}
 	for (int i = 0; i < g_nTs; i++)
 	{
