@@ -169,8 +169,22 @@ _HUNG_ICONSM:
 
 const float g_fl2 = (float)2.;
 
+#ifndef PW_RENDERFULLCONTENT
+#define PW_RENDERFULLCONTENT 0x00000002
+#endif
+
+static BOOL PrintWindowModern(HWND hwndPv, HDC hdc) {
+	// PW_RENDERFULLCONTENT asks DWM to render the full composed surface.
+	// This is required for many accelerated windows on newer Windows builds.
+	if (PrintWindow(hwndPv, hdc, PW_RENDERFULLCONTENT))
+		return(TRUE);
+
+	// Fallback for windows/apps that do not support full-content rendering.
+	return(PrintWindow(hwndPv, hdc, 0));
+}
+
 BOOL MyPrintWindow(HWND hwndPv, HDC hdc, const RECT* prcPv, const RECT* prcWork, DWORD dwFlags) {
-	
+
 	HRGN hrgnPv = NULL, hrgnOld = NULL;
 
 	RECT rcWnd;
@@ -327,7 +341,7 @@ _CALC_XFORM_END:
 	QueryPerformanceFrequency(&liFreq);
 	QueryPerformanceCounter(&liStart);*/
 
-	BOOL fRet = PrintWindow(hwndPv, hdc, 0);
+	BOOL fRet = PrintWindowModern(hwndPv, hdc);
 
 	/*QueryPerformanceCounter(&liCur);
 	WCHAR szBuff[128];
