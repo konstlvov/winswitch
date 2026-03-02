@@ -101,7 +101,7 @@ BOOL MyIsHungAppWindow(HWND hwnd) {
     if (g_pfnIsHungAppWindow && g_pfnIsHungAppWindow(hwnd))
 		return(TRUE);
 
-	DWORD dw;
+	DWORD_PTR dw;
 	LRESULT lResult = SendMessageTimeout(hwnd, WM_NULL, 0, 0, 
 		SMTO_ABORTIFHUNG, HUNG_TIMEOUT, &dw);
 	if (lResult)
@@ -170,7 +170,7 @@ _HUNG_ICONSM:
 const float g_fl2 = (float)2.;
 
 BOOL MyPrintWindow(HWND hwndPv, HDC hdc, const RECT* prcPv, const RECT* prcWork, DWORD dwFlags) {
-
+	
 	HRGN hrgnPv = NULL, hrgnOld = NULL;
 
 	RECT rcWnd;
