@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Maintained fork of TaskSwitchXP (WinSwitch): a 32-bit Win32 C++ Alt-Tab replacement. No tests, no lint, no CI. Verification is a build plus manual use of the switcher.
+Maintained fork of TaskSwitchXP (WinSwitch): a Win32 C++ Alt-Tab replacement, built for both 32-bit and 64-bit Windows. No tests, no lint, no CI. Verification is a build plus manual use of the switcher.
 
 ## Build
 
@@ -20,12 +20,10 @@ Swap `Release` for `Debug` for the ~1.1 MB debug build with asserts and `/RTC1`.
   TaskSwitchXP.sln /p:Configuration=Release /p:Platform=x64 /t:Build
 ```
 
-There are no x64 `.cmd` scripts; the four scripts below hardcode x86 toolchain paths and only build Win32.
-
-Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_link.cmd` for the debug build, or `cmd /c do_compile_release.cmd` then `cmd /c do_link_release.cmd` for the release build. They do not call `vcvars*`; they hardcode `VS2022\...\MSVC\14.40.33807` and `Windows Kits\10.0.22621.0` in `PATH`/`INCLUDE`/`LIB`. Update those paths in all four scripts if the toolchain moves, and keep the release scripts in sync with the project's link settings.
+Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_link.cmd` for the debug build, `cmd /c do_compile_release.cmd` then `cmd /c do_link_release.cmd` for the release build, or `cmd /c do_compile_release_x64.cmd` then `cmd /c do_link_release_x64.cmd` for the x64 release build (output in `x64\Release\`). The x64 pair uses the `Hostx64\x64` tools and `/MACHINE:X64` with no `/SAFESEH`. The scripts do not call `vcvars*`; they hardcode `VS2022\...\MSVC\14.40.33807` and `Windows Kits\10.0.22621.0` in `PATH`/`INCLUDE`/`LIB`. Update those paths in all six scripts if the toolchain moves, and keep the release scripts in sync with the project's link settings.
 
 - Both configurations start through the CRT (`wWinMain` in `main.cpp`) and link the static CRT, so the exe needs no VC++ redistributable. Do **not** reintroduce `/ENTRY:_myWinMain` to save the ~14 KB of CRT startup: without CRT init the legacy `wcstok` in `_AddNewTaskWindow` faults (0xC0000005) because it needs CRT per-thread data, `MyEnumDesktopWindows` catches the fault and reports zero tasks, and the switcher never opens while the tray icon still does.
-- Both Win32 and x64 are supported. `res/TaskSwitchXP.manifest` uses `processorArchitecture="*"` so one manifest works for both (the Common-Controls dependency too); do not put `X86` back or 64-bit builds fail to activate their context. The scripts link `/MACHINE:X86`, the project configs pick the machine from the platform.
+- Both Win32 and x64 are supported. `res/TaskSwitchXP.manifest` uses `processorArchitecture="*"` so one manifest works for both (the Common-Controls dependency too); do not put `X86` back or 64-bit builds fail to activate their context. The x86 scripts link `/MACHINE:X86` (with `/SAFESEH`), the x64 scripts `/MACHINE:X64` (no `/SAFESEH`), and the project configs pick the machine from the platform.
 - `/Debug`, `/Release`, `/x64` and `/.vs` are gitignored. Never commit a built `.exe` (the previously tracked root exe was intentionally deleted in `f5d0f09`).
 
 ## Testing and runtime quirks
