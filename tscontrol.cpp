@@ -379,7 +379,7 @@ void RemoveSelected(HWND hwndTs) {
 void MinimizeSelected(HWND hwndTs) {
 
 	BOOL fRedraw = FALSE;
-	DWORD dw;
+	DWORD_PTR dw;
 
 	for (int i = 0; i < g_nTs; i++) {
 		if (g_pTs[i].dwFlags & TI_SELECTED || i == g_nCurTs) {
@@ -605,7 +605,7 @@ void ExploreExePath(PCWSTR pszExePath) {
 
 void ReorderSelected(HWND hwndTs, UINT uOrder) {
 
-	DWORD dw;
+	DWORD_PTR dw;
 	HWND hwndPv;
 	HWND *phSel = (HWND*)HeapAlloc(GetProcessHeap(), 0, g_nTs * sizeof(HWND));
 	if (!phSel) return;

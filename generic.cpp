@@ -167,8 +167,6 @@ _HUNG_ICONSM:
 
 //-----------------------------------------------------------
 
-const float g_fl2 = (float)2.;
-
 #ifndef PW_RENDERFULLCONTENT
 #define PW_RENDERFULLCONTENT 0x00000002
 #endif
@@ -199,129 +197,42 @@ BOOL MyPrintWindow(HWND hwndPv, HDC hdc, const RECT* prcPv, const RECT* prcWork,
 	if (rcWnd.right == 0 || rcWnd.bottom == 0)
 		return(FALSE);
 
-	float cxWork, cyWork;
-	XFORM xForm;
-	int tmp;
+	float cxWork = (float)(prcWork->right - prcWork->left);
+	float cyWork = (float)(prcWork->bottom - prcWork->top);
 
-	tmp = prcWork->right - prcWork->left;
-	__asm {
-		fild tmp
-		fstp cxWork
-	}
-	tmp = prcWork->bottom - prcWork->top;
-	__asm {
-		fild tmp
-		fstp cyWork
-	}
-	__asm {
-		fldz
-		fst xForm.eM12
-		fstp xForm.eM21
-	}
-
-	tmp = prcPv->right - prcPv->left;
-	__asm {
-		fild tmp
-		fstp xForm.eM11
-	}
-	tmp = prcPv->bottom - prcPv->top;
-	__asm {
-		fild tmp
-		fstp xForm.eM22
-	}
+	XFORM xForm = { 0 };
+	xForm.eM11 = (float)(prcPv->right - prcPv->left);
+	xForm.eM22 = (float)(prcPv->bottom - prcPv->top);
 
 	int leftPv = prcPv->left,
 		topPv = prcPv->top;
 
 	if (dwFlags & MPW_DESKTOP) {
 
-		__asm {
-			fld xForm.eM11
-			fdiv cxWork
-            fst xForm.eDy
-			fimul int ptr rcWnd.left
+		FLOAT flScale = xForm.eM11 / cxWork;
+		xForm.eM11 = flScale;
+		xForm.eM22 = flScale;
+		xForm.eDx = flScale * (FLOAT)rcWnd.left + (FLOAT)leftPv;
+		xForm.eDy = flScale * (FLOAT)rcWnd.top + (FLOAT)topPv;
 
-			fiadd int ptr leftPv
-			fstp xForm.eDx
-
-			fld xForm.eDy
-			fimul int ptr rcWnd.top
-			fiadd int ptr topPv
-			fstp xForm.eDy
-		
-			fld xForm.eM11
-			fdiv cxWork
-			fst xForm.eM11
-			fstp xForm.eM22
-		}
 	} else {
 
-		__asm {
-			fld xForm.eM11 // xForm.eM11 * cyWork > xForm.eM22 * cxWork
-			fmul cyWork
-			fld xForm.eM22
-			fmul cxWork
-			fcompp
-			fnstsw ax
-			test ah,5
-			jz _CALC_XFORM2
-
-			fld xForm.eM22 // xForm.eM22 /= cyWork;
-			fdiv cyWork
-			fst xForm.eM22
-			fstp xForm.eM11 // xForm.eM11 = xForm.eM22;
-			jmp _CALC_XFORM_END
-
-_CALC_XFORM2:
-			fld xForm.eM11 // xForm.eM11 /= cxWork;
-			fdiv cxWork
-			fst xForm.eM11
-			fstp xForm.eM22 // xForm.eM22 = xForm.eM11;
-
-_CALC_XFORM_END:
+		if (xForm.eM11 * cyWork > xForm.eM22 * cxWork) {
+			xForm.eM22 /= cyWork;
+			xForm.eM11 = xForm.eM22;
+		} else {
+			xForm.eM11 /= cxWork;
+			xForm.eM22 = xForm.eM11;
 		}
-		//xForm.eDx = (float)prcPv->left + (float)(rcWnd.left - prcWork->left) * xForm.eM11;
-		tmp = rcWnd.left - prcWork->left;
-		__asm {
-			fild tmp
-			fmul xForm.eM11
-			fiadd leftPv
-			fstp xForm.eDx
-		}
+		xForm.eDx = (FLOAT)(rcWnd.left - prcWork->left) * xForm.eM11 + (FLOAT)leftPv;
 		if (dwFlags & MPW_HCENTER) {
-			//xForm.eDx += ((float)(prcPv->right - prcPv->left) - cxWork * xForm.eM11) / (float)2.;
-			tmp = prcPv->right - prcPv->left;
-			__asm {
-				fld xForm.eM11
-				fmul cxWork
-                fisubr tmp
-                fdiv g_fl2
-				fadd xForm.eDx
-				fstp xForm.eDx
-			}
+			xForm.eDx += ((FLOAT)(prcPv->right - prcPv->left) - cxWork * xForm.eM11) / 2.f;
 		}
-		//xForm.eDy = prcPv->top + (float)(rcWnd.top - prcWork->top) * xForm.eM22;
-		tmp = rcWnd.top - prcWork->top;
-		__asm {
-			fild tmp
-			fmul xForm.eM22
-			fiadd topPv
-			fstp xForm.eDy
-		}
+		xForm.eDy = (FLOAT)(rcWnd.top - prcWork->top) * xForm.eM22 + (FLOAT)topPv;
 		if (dwFlags & MPW_VCENTER) {
-			//xForm.eDy += ((float)(prcPv->bottom - prcPv->top) - cyWork * xForm.eM22) / (float)2.;
-			tmp = prcPv->bottom - prcPv->top;
-			__asm {
-				fld xForm.eM22
-				fmul cyWork
-                fisubr tmp
-                fdiv g_fl2
-				fadd xForm.eDy
-				fstp xForm.eDy
-			}
-		}		
+			xForm.eDy += ((FLOAT)(prcPv->bottom - prcPv->top) - cyWork * xForm.eM22) / 2.f;
+		}
 	}
-
 	hrgnPv = CreateRectRgn(prcPv->left, prcPv->top, prcPv->right, prcPv->bottom);
 	if (!(dwFlags & MPW_NOREGION)) {
 		HRGN hrgnWnd = GetPreviewRegion(hwndPv, &xForm);

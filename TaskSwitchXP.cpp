@@ -1319,16 +1319,15 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 		  OutputDebugString(L"function QueryFullProcessImageName also has failed\r\n");
 		}
 		else { // ok, got full process image name
-			WCHAR *part;
-			WCHAR last_part[4000];
-			part = wcstok(ti.szModuleName, L"\\");
-			while (part != NULL) {
-				//OutputDebugString(part);
-				//OutputDebugString(L"\r\n");
-				lstrcpy(last_part, part);
-				part = wcstok(NULL, L"\\");
+			// keep only the file name; do not use wcstok here - it depends on
+			// CRT per-thread state and leaves last_part uninitialized
+			PWSTR pszName = ti.szModuleName;
+			for (PWSTR p = ti.szModuleName; *p; p++) {
+				if (*p == L'\\')
+					pszName = p + 1;
 			}
-			lstrcpy(ti.szModuleName, last_part);
+			MoveMemory(ti.szModuleName, pszName, 
+				(lstrlen(pszName) + 1) * sizeof(WCHAR));
 			//wsprintf(tmp, L" QueryFullProcessImageName: %d", ti.dwProcessId); lstrcat(ti.szModuleName, tmp);
 			//OutputDebugString(last_part);
 			//OutputDebugString(L"\r\n");
@@ -1692,21 +1691,12 @@ BOOL InitTsBackground(HWND hwndTs) {
 				rc1.right = g_rcTs.right;
 				rc1.bottom = g_rcTs.bottom / 2 + 1;
 
-				__asm {
-					fild int ptr g_rcTs.bottom
-					fstp xForm.eDy
-
-					fld1
-					fstp xForm.eM11
-
-					fldz
-					fst xForm.eDx
-					fst xForm.eM12
-					fst xForm.eM21
-
-					fsub xForm.eM11
-					fstp xForm.eM22
-				}
+				xForm.eM11 = 1.f;
+				xForm.eM12 = 0.f;
+				xForm.eM21 = 0.f;
+				xForm.eM22 = -1.f;
+				xForm.eDx = 0.f;
+				xForm.eDy = (FLOAT)g_rcTs.bottom;
 
 				if (GetThemeBackgroundRegion(g_htheme, NULL, 
 					SPP_USERPANE, 0, &rc1, &hrgn) != S_OK) __leave;
@@ -1909,10 +1899,8 @@ BOOL InitTsBackground(HWND hwndTs) {
 				if (DrawThemeBackground(g_htheme, hdcMem2, 
 					SPP_USERPANE, 0, &rc1, NULL) != S_OK) __leave;
 
-				__asm {
-					fild int ptr rc1.bottom
-					fstp xForm.eDy
-				}
+				xForm.eDy = (FLOAT)rc1.bottom;
+
 
 				SetGraphicsMode(hdcMem2, GM_ADVANCED);
 				SetMapMode(hdcMem2, MM_ANISOTROPIC);
