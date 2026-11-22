@@ -28,7 +28,7 @@ Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_l
 
 - Both configurations start through the CRT (`wWinMain` in `main.cpp`) and link the static CRT, so the exe needs no VC++ redistributable. Do **not** reintroduce `/ENTRY:_myWinMain` to save the ~14 KB of CRT startup: without CRT init the legacy `wcstok` in `_AddNewTaskWindow` faults (0xC0000005) because it needs CRT per-thread data, `MyEnumDesktopWindows` catches the fault and reports zero tasks, and the switcher never opens while the tray icon still does.
 - Both Win32 and x64 are supported. `res/TaskSwitchXP.manifest` uses `processorArchitecture="*"` so one manifest works for both (the Common-Controls dependency too); do not put `X86` back or 64-bit builds fail to activate their context. The x86 scripts link `/MACHINE:X86` (with `/SAFESEH`), the x64 scripts `/MACHINE:X64` (no `/SAFESEH`), and the project configs pick the machine from the platform.
-- `/Debug`, `/Release`, `/x64` and `/.vs` are gitignored. Never commit a built `.exe` (the previously tracked root exe was intentionally deleted in `f5d0f09`).
+- `/Debug`, `/Release`, `/x64` and `/.vs` are gitignored. Never commit a built `.exe` (the previously tracked root exe was intentionally deleted in `f5d0f09`); do not restore `TaskSwitchXP.exe` in the repository root.
 
 ## Testing and runtime quirks
 
@@ -36,13 +36,14 @@ Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_l
 - Second launch does not start a second copy: `main.cpp` finds the hidden main window and either offers to kill the running instance or forwards `/list`, `/inst-list`, `/escape`, `/nocheckver` as `WM_REMOTECMD`. Kill the running/installed instance before swapping binaries.
 - Startup calls `CheckVersion()` and aborts with "requires Windows XP/2003" unless `/nocheckver` is passed. It uses deprecated `GetVersionEx`.
 - Settings are registry-only here: `HKCU\Software\Alexander Avdonin\TaskSwitchXP\2.0`; names and bit flags are in `registry.h`. The `ConfigTsXP` settings UI exists only under `orig-src/` and is not built by this solution.
+- `PreviewCaptureMode` (`RS_PVCAPTUREMODE` in `registry.h`) controls preview capture: `0` = legacy single `PrintWindow(hwnd, hdc, 0)`, `1` = candidate cascade with frame validation (default when missing/invalid), `2` = same cascade plus per-candidate `OutputDebugString` diagnostics (HWND/pid/process, window/DWM/native rects, flags, native and preview sizes, timing, score, selected flags). Diagnostic mode is silent in `0`/`1`; the icon fallback in `DrawTaskPreview` is used only when no `PrintWindow` candidate succeeds. Full-content candidates (`PW_RENDERFULLCONTENT` `0x2` and diagnostic `0x3`) are captured into a DIB sized to the window's native physical bounds (DWM extended frame bounds via dynamic `dwmapi.dll`, fallback `GetWindowRect`) with `GM_COMPATIBLE`/`MM_TEXT` and identity XFORM, then downscaled with `StretchBlt` into the preview; the legacy candidate `0` stays preview-sized with the window-to-preview `XFORM` and is copied 1:1 with `BitBlt`. WGC/WinRT/D3D11/DXGI are deliberately not used at this stage, and no new `dwmapi.lib` dependency is added (DWM frame bounds are queried dynamically for capture sizing and logging only).
 - `LangLoadString` prefers `lang\<LangFile>.lng` next to the exe; the file must be UTF-16LE with BOM and contain `ID="text"` entries with IDs >= 31000. Otherwise it falls back to the `.rc` string table.
 
 ## Code map
 
 - `main.cpp` — entrypoint, command line, hidden message window, tray icon, global hotkeys, command dispatch.
 - `TaskSwitchXP.cpp` — the switcher window: task list layout/painting, Alt-Tab state machine, type-to-filter, hotkey hint. Keyboard handling lives in the block marked `//klvov: alternative keyboard handling proc` (~line 3739).
-- `generic.cpp` — window enumeration/icons/wallpaper/tray helpers; `MyPrintWindow` renders preview thumbnails with `PrintWindow(..., 0)`.
+- `generic.cpp` — window enumeration/icons/wallpaper/tray helpers; `MyPrintWindow` renders preview thumbnails via a `PrintWindow` candidate cascade: `PW_RENDERFULLCONTENT` on Win8.1+ is captured at native window size and downscaled into the preview, then legacy flags `0` keeps the preview-sized XFORM path; lightweight frame scoring/selection and a fallback to legacy or the task icon are included. Non-task-preview captures (`MPW_DESKTOP` backgrounds and the tray-window check) keep the plain `PrintWindow(..., 0)` path.
 - `tscontrol.cpp` — list operations: select/multi-select, close, minimize, restore/maximize, cascade/tile, sort.
 - `registry.h` — all setting names and `TSF_*`/`TSFL_*` flag bits.
 - `TaskSwitchXP.rc` + `res/` — version info (2.0.11.0), manifest, icons. `orig-src/` is the untouched upstream source (VS2005 projects): reference only, do not edit or build.

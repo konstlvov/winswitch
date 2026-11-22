@@ -19,6 +19,7 @@
 #define RS_CAPSHADOW			L"CapShadow"
 #define RS_PVDELAY				L"PreviewDelay"
 #define RS_PVWIDTH				L"PreviewWidth"
+#define RS_PVCAPTUREMODE		L"PreviewCaptureMode"
 #define RS_LISTWIDTH			L"ListWidth"
 #define RS_LISTHEIGHT			L"ListHeight"
 //#define RS_ICONSX				L"IconsX"
@@ -235,6 +236,12 @@
 #define DEFAULT_CAPSHADOW		0x02000000
 #define DEFAULT_PVDELAY			50 // 0xffffffff
 #define DEFAULT_PVWIDTH			330
+
+// PreviewCaptureMode: legacy PrintWindow, candidate cascade, cascade with debug log
+#define PVCAP_LEGACY			0
+#define PVCAP_AUTO				1
+#define PVCAP_DIAGNOSTIC		2
+#define DEFAULT_PVCAPTUREMODE	PVCAP_AUTO
 #define DEFAULT_LISTWIDTH		230
 #define DEFAULT_LISTHEIGHT		264
 

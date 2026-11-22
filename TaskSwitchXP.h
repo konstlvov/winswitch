@@ -123,6 +123,7 @@ typedef struct TSEXCLUSION {
 extern DWORD g_dwShowDelay;
 extern DWORD g_dwFlags;
 extern DWORD g_dwFlagsPv;
+extern DWORD g_dwPvCaptureMode;
 extern UINT g_uTrayMenu;
 extern UINT g_uTrayConfig;
 extern UINT g_uTrayNext;

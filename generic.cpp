@@ -1,10 +1,12 @@
 // generic.cpp
 
 #include "stdafx.h"
+#include <stdarg.h>
 #include "main.h"
 #include "generic.h"
 #include "lang.h"
 #include "resource.h"
+#include "TaskSwitchXP.h"
 
 //-----------------------------------------------------------
 
@@ -177,6 +179,405 @@ _HUNG_ICONSM:
 
 //-----------------------------------------------------------
 
+#ifndef PW_RENDERFULLCONTENT
+#define PW_RENDERFULLCONTENT			0x00000002
+#endif
+
+#ifndef DWMWA_EXTENDED_FRAME_BOUNDS
+#define DWMWA_EXTENDED_FRAME_BOUNDS		9
+#endif
+
+#define PV_SCORE_GRID					32
+#define PV_SCORE_LOW					64
+#define PV_MAX_CAPTURE_SIZE				4096
+
+typedef struct PV_OSVERSIONINFO {
+	ULONG dwOSVersionInfoSize;
+	ULONG dwMajorVersion;
+	ULONG dwMinorVersion;
+	ULONG dwBuildNumber;
+	ULONG dwPlatformId;
+	WCHAR szCSDVersion[128];
+} *PPV_OSVERSIONINFO;
+typedef LONG (NTAPI *PV_RTLGETVERSION)(PPV_OSVERSIONINFO);
+
+typedef struct PVSCORE {
+	int nScore;
+	int cUnique;
+	int cNonBlack;
+} PVSCORE;
+
+typedef struct PVFRAME {
+	HBITMAP hbm;
+	BYTE* pBits;
+	BOOL fOk;
+	DWORD dwErr;
+	DWORD dwTimeMs;
+	DWORD dwFlags;
+	int cxSrc;
+	int cySrc;
+	BOOL fFullContent;
+	PVSCORE score;
+} PVFRAME;
+
+static BOOL PvIsWin81OrGreater() {
+
+	static int s_fWin81 = -1;
+	if (s_fWin81 >= 0)
+		return((BOOL)s_fWin81);
+
+	BOOL fWin81 = FALSE;
+	// RtlGetVersion is not affected by the absence of a supportedOS manifest entry,
+	// unlike GetVersionEx / VerifyVersionInfo (they would report 6.2 on Win10/11).
+	HMODULE hmodNtdll = GetModuleHandle(L"ntdll.dll");
+	if (hmodNtdll) {
+		PV_RTLGETVERSION pfnRtlGetVersion = 
+			(PV_RTLGETVERSION)GetProcAddress(hmodNtdll, "RtlGetVersion");
+		if (pfnRtlGetVersion) {
+			PV_OSVERSIONINFO vi = { sizeof(PV_OSVERSIONINFO) };
+			if (pfnRtlGetVersion(&vi) >= 0)
+				fWin81 = (vi.dwMajorVersion > 6 || 
+					(vi.dwMajorVersion == 6 && vi.dwMinorVersion >= 3));
+		}
+	}
+	s_fWin81 = fWin81;
+	return(fWin81);
+}
+
+static BOOL PvGetWindowBounds(HWND hwndPv, RECT* prc, HRESULT* phrDwm) {
+
+	HRESULT hrDwm = E_FAIL;
+	RECT rcDwm = { 0 };
+	HMODULE hmodDwm = LoadLibrary(L"dwmapi.dll");
+	if (hmodDwm) {
+		typedef HRESULT (WINAPI *PV_DWMGETWINDOWATTRIBUTE)(HWND, DWORD, PVOID, DWORD);
+		PV_DWMGETWINDOWATTRIBUTE pfnDwm = (PV_DWMGETWINDOWATTRIBUTE)
+			GetProcAddress(hmodDwm, "DwmGetWindowAttribute");
+		if (pfnDwm)
+			hrDwm = pfnDwm(hwndPv, DWMWA_EXTENDED_FRAME_BOUNDS, &rcDwm, sizeof(rcDwm));
+		FreeLibrary(hmodDwm);
+	}
+	if (phrDwm)
+		*phrDwm = hrDwm;
+
+	if (SUCCEEDED(hrDwm) && rcDwm.right > rcDwm.left && rcDwm.bottom > rcDwm.top) {
+		*prc = rcDwm;
+		return(TRUE);
+	}
+	if (!GetWindowRect(hwndPv, prc))
+		return(FALSE);
+	return(prc->right > prc->left && prc->bottom > prc->top);
+}
+
+static void PvDebugLog(LPCWSTR szFmt, ...) {
+
+	if (g_dwPvCaptureMode != PVCAP_DIAGNOSTIC)
+		return;
+
+	WCHAR szBuf[1024];
+	va_list args;
+	va_start(args, szFmt);
+	_vsnwprintf_s(szBuf, SIZEOF_ARRAY(szBuf), _TRUNCATE, szFmt, args);
+	va_end(args);
+	OutputDebugString(szBuf);
+}
+
+static void PvLogWindowInfo(HWND hwndPv) {
+
+	DWORD pid = 0;
+	GetWindowThreadProcessId(hwndPv, &pid);
+	WCHAR szProc[MAX_PATH] = L"?";
+	HANDLE hproc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+	if (hproc) {
+		GetModuleBaseName(hproc, NULL, szProc, SIZEOF_ARRAY(szProc));
+		CloseHandle(hproc);
+	}
+
+	RECT rcWnd = { 0 }, rcNative = { 0 };
+	HRESULT hrDwm = E_FAIL;
+	GetWindowRect(hwndPv, &rcWnd);
+	BOOL fDwmBounds = PvGetWindowBounds(hwndPv, &rcNative, &hrDwm);
+	LPCWSTR pszBounds = fDwmBounds ? L"dwm" : L"wnd";
+
+	PvDebugLog(L"PvCapture: hwnd=%p pid=%u proc=%s iconic=%d visible=%d "
+		L"rect=(%d,%d)-(%d,%d) native=(%d,%d)-(%d,%d) nativeSize=%dx%d bounds=%s dwmhr=0x%08lX\n",
+		(void*)hwndPv, pid, szProc, IsIconic(hwndPv), IsWindowVisible(hwndPv),
+		rcWnd.left, rcWnd.top, rcWnd.right, rcWnd.bottom,
+		rcNative.left, rcNative.top, rcNative.right, rcNative.bottom,
+		rcNative.right - rcNative.left, rcNative.bottom - rcNative.top,
+		pszBounds, (ULONG)hrDwm);
+}
+
+static PVSCORE PvScoreFrame(const BYTE* pBits, int cx, int cy) {
+
+	PVSCORE score = { 0, 0, 0 };
+	BYTE seen[4096] = { 0 }; // 32768 bits for 5-bit-per-channel RGB
+
+	int sx = MIN(PV_SCORE_GRID, cx), sy = MIN(PV_SCORE_GRID, cy);
+	for (int iy = 0; iy < sy; iy++) {
+		int y = (sy == 1) ? (cy / 2) : (iy * (cy - 1) / (sy - 1));
+		const BYTE* pRow = pBits + (size_t)y * cx * 4;
+		for (int ix = 0; ix < sx; ix++) {
+			int x = (sx == 1) ? (cx / 2) : (ix * (cx - 1) / (sx - 1));
+			const BYTE* p = pRow + x * 4;
+			int r = p[2], g = p[1], b = p[0];
+			int idx = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+			if (!(seen[idx >> 3] & (1 << (idx & 7)))) {
+				seen[idx >> 3] |= (BYTE)(1 << (idx & 7));
+				score.cUnique++;
+			}
+			if (r + g + b > 24)
+				score.cNonBlack++;
+		}
+	}
+	score.nScore = score.cUnique * 16 + score.cNonBlack * 2;
+	return(score);
+}
+
+static BOOL PvSetTempDcMode(HDC hdcTemp, BOOL fFullContent, const XFORM* pxForm) {
+
+	XFORM xfId = { 1, 0, 0, 1, 0, 0 };
+
+	if (fFullContent) {
+		// PW_RENDERFULLCONTENT ignores the GDI world transform, so leave GM_ADVANCED
+		// cleanly and give it a plain device-pixel DC.
+		if (GetGraphicsMode(hdcTemp) == GM_ADVANCED &&
+			!SetWorldTransform(hdcTemp, &xfId))
+			return(FALSE);
+		if (!SetGraphicsMode(hdcTemp, GM_COMPATIBLE))
+			return(FALSE);
+		if (!SetMapMode(hdcTemp, MM_TEXT))
+			return(FALSE);
+		SetWindowOrgEx(hdcTemp, 0, 0, NULL);
+		SetViewportOrgEx(hdcTemp, 0, 0, NULL);
+	} else {
+		// Legacy PrintWindow honours xfTemp, which maps the window into the preview.
+		if (!SetGraphicsMode(hdcTemp, GM_ADVANCED))
+			return(FALSE);
+		if (!SetMapMode(hdcTemp, MM_ANISOTROPIC))
+			return(FALSE);
+		SetWindowExtEx(hdcTemp, 1, 1, NULL);
+		SetViewportExtEx(hdcTemp, 1, 1, NULL);
+		SetWindowOrgEx(hdcTemp, 0, 0, NULL);
+		SetViewportOrgEx(hdcTemp, 0, 0, NULL);
+		if (!SetWorldTransform(hdcTemp, pxForm))
+			return(FALSE);
+	}
+	SetStretchBltMode(hdcTemp, HALFTONE);
+	return(TRUE);
+}
+
+static BOOL PvResetDcForBlit(HDC hdc, DWORD* pdwErr) {
+
+	XFORM xfId = { 1, 0, 0, 1, 0, 0 };
+	if (pdwErr)
+		*pdwErr = 0;
+
+	if (GetGraphicsMode(hdc) == GM_ADVANCED && !SetWorldTransform(hdc, &xfId)) {
+		if (pdwErr)
+			*pdwErr = GetLastError();
+		return(FALSE);
+	}
+	if (!SetGraphicsMode(hdc, GM_COMPATIBLE)) {
+		if (pdwErr)
+			*pdwErr = GetLastError();
+		return(FALSE);
+	}
+	if (!SetMapMode(hdc, MM_TEXT)) {
+		if (pdwErr)
+			*pdwErr = GetLastError();
+		return(FALSE);
+	}
+	SetWindowOrgEx(hdc, 0, 0, NULL);
+	SetViewportOrgEx(hdc, 0, 0, NULL);
+	return(TRUE);
+}
+
+static BOOL PvPrintWindowCascade(HWND hwndPv, HDC hdc, const RECT* prcPv, const XFORM* pxForm) {
+
+	// prcPv is already in device pixels of the preview bitmap (the preview DC is
+	// MM_TEXT, and xForm maps window coordinates into that space).
+	RECT rcDst = *prcPv;
+	int cxBmp = rcDst.right - rcDst.left, cyBmp = rcDst.bottom - rcDst.top;
+	if (cxBmp <= 0 || cyBmp <= 0 || 
+		cxBmp > PV_MAX_CAPTURE_SIZE || cyBmp > PV_MAX_CAPTURE_SIZE) {
+		PvDebugLog(L"PvCapture: invalid capture size %dx%d, legacy only\n", cxBmp, cyBmp);
+		return(PrintWindow(hwndPv, hdc, 0));
+	}
+
+	// Shift the same window -> preview transform so that prcPv's top-left corner
+	// maps to (0,0) in the temporary bitmap.
+	XFORM xfTemp = *pxForm;
+	xfTemp.eDx -= (FLOAT)rcDst.left;
+	xfTemp.eDy -= (FLOAT)rcDst.top;
+
+	HDC hdcTemp = CreateCompatibleDC(hdc);
+	if (!hdcTemp)
+		return(PrintWindow(hwndPv, hdc, 0));
+
+	RECT rcNative = { 0 };
+	HRESULT hrDwm = E_FAIL;
+	BOOL fHaveNative = PvGetWindowBounds(hwndPv, &rcNative, &hrDwm);
+	int cxNative = rcNative.right - rcNative.left;
+	int cyNative = rcNative.bottom - rcNative.top;
+
+	if (g_dwPvCaptureMode == PVCAP_DIAGNOSTIC)
+		PvLogWindowInfo(hwndPv);
+
+	LARGE_INTEGER liFreq = { 0 }, liStart = { 0 }, liEnd = { 0 };
+	QueryPerformanceFrequency(&liFreq);
+
+	PVFRAME frames[3];
+	ZeroMemory(frames, sizeof(frames));
+	DWORD dwCandidates[3];
+	int cCandidates = 0;
+	if (PvIsWin81OrGreater()) {
+		dwCandidates[cCandidates++] = PW_RENDERFULLCONTENT;
+		if (g_dwPvCaptureMode == PVCAP_DIAGNOSTIC)
+			dwCandidates[cCandidates++] = PW_RENDERFULLCONTENT | PW_CLIENTONLY;
+	}
+	dwCandidates[cCandidates++] = 0; // legacy candidate is always the last one
+
+	if (!fHaveNative && cCandidates > 1) {
+		PvDebugLog(L"PvCapture: native bounds unavailable hr=0x%08lX err=%u, "
+			L"full-content candidates skipped\n", (ULONG)hrDwm, GetLastError());
+	}
+
+	BITMAPINFO bi;
+	ZeroMemory(&bi, sizeof(bi));
+	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bi.bmiHeader.biPlanes = 1;
+	bi.bmiHeader.biBitCount = 32;
+	bi.bmiHeader.biCompression = BI_RGB;
+
+	for (int i = 0; i < cCandidates; i++) {
+		BOOL fFullContent = (dwCandidates[i] & PW_RENDERFULLCONTENT) != 0;
+		if (fFullContent && !fHaveNative) {
+			PvDebugLog(L"PvCapture: candidate[%d] skipped: no native size\n", i);
+			continue;
+		}
+		int cxSrc = fFullContent ? cxNative : cxBmp;
+		int cySrc = fFullContent ? cyNative : cyBmp;
+
+		if (!PvSetTempDcMode(hdcTemp, fFullContent, &xfTemp)) {
+			PvDebugLog(L"PvCapture: candidate[%d] DC setup failed err=%u\n", i, GetLastError());
+			continue;
+		}
+
+		bi.bmiHeader.biWidth = cxSrc;
+		bi.bmiHeader.biHeight = cySrc;
+		BYTE* pBits = NULL;
+		HBITMAP hbm = CreateDIBSection(hdc, &bi, DIB_RGB_COLORS, (PVOID*)&pBits, NULL, 0);
+		if (!hbm)
+			continue;
+		HBITMAP hbmOld = (HBITMAP)SelectObject(hdcTemp, hbm);
+		if (!hbmOld) {
+			DeleteObject(hbm);
+			continue;
+		}
+		if (pBits)
+			ZeroMemory(pBits, (size_t)cxSrc * cySrc * 4);
+
+		SetLastError(0);
+		QueryPerformanceCounter(&liStart);
+		BOOL fOk = PrintWindow(hwndPv, hdcTemp, dwCandidates[i]);
+		DWORD dwErr = GetLastError();
+		QueryPerformanceCounter(&liEnd);
+
+		PVSCORE score = { 0, 0, 0 };
+		if (fOk && pBits)
+			score = PvScoreFrame(pBits, cxSrc, cySrc);
+
+		DWORD dwMs = (liFreq.QuadPart && liEnd.QuadPart >= liStart.QuadPart)
+			? (DWORD)((liEnd.QuadPart - liStart.QuadPart) * 1000 / liFreq.QuadPart) : 0;
+		PVFRAME* pFrame = &frames[i];
+		pFrame->hbm = hbm;
+		pFrame->pBits = pBits;
+		pFrame->fOk = fOk;
+		pFrame->dwErr = fOk ? 0 : dwErr;
+		pFrame->dwTimeMs = dwMs;
+		pFrame->dwFlags = dwCandidates[i];
+		pFrame->cxSrc = cxSrc;
+		pFrame->cySrc = cySrc;
+		pFrame->fFullContent = fFullContent;
+		pFrame->score = score;
+
+		PvDebugLog(L"PvCapture: candidate[%d] flags=0x%08X ok=%d err=%u full=%d "
+			L"src=%dx%d preview=%dx%d time=%ums score=%d unique=%d nonblack=%d\n",
+			i, dwCandidates[i], fOk, pFrame->dwErr, fFullContent, cxSrc, cySrc,
+			cxBmp, cyBmp, dwMs, score.nScore, score.cUnique, score.cNonBlack);
+
+		SelectObject(hdcTemp, hbmOld);
+	}
+
+	int iLegacy = cCandidates - 1;
+	// Start with legacy so that an exact score tie keeps the original frame.
+	int iBest = (frames[iLegacy].hbm && frames[iLegacy].fOk) ? iLegacy : -1;
+	for (int i = 0; i < cCandidates; i++) {
+		if (!frames[i].hbm || !frames[i].fOk)
+			continue;
+		if (iBest < 0 || frames[i].score.nScore > frames[iBest].score.nScore)
+			iBest = i;
+	}
+	// Equally poor frames (a legitimately dark window, for example) go with legacy.
+	if (iBest >= 0 && iBest != iLegacy && frames[iLegacy].fOk && 
+		frames[iBest].score.nScore < PV_SCORE_LOW &&
+		frames[iLegacy].score.nScore < PV_SCORE_LOW)
+		iBest = iLegacy;
+
+	BOOL fRet = FALSE;
+	if (iBest >= 0) {
+		HBITMAP hbmOld = (HBITMAP)SelectObject(hdcTemp, frames[iBest].hbm);
+		int nSave = SaveDC(hdc);
+		if (!nSave) {
+			PvDebugLog(L"PvCapture: SaveDC failed err=%u, retrying legacy\n", GetLastError());
+		} else {
+			DWORD dwErrReset = 0;
+			if (!PvResetDcForBlit(hdc, &dwErrReset) ||
+				!PvResetDcForBlit(hdcTemp, &dwErrReset)) {
+				PvDebugLog(L"PvCapture: reset DC for blit failed err=%u, retrying legacy\n", dwErrReset);
+			} else if (frames[iBest].fFullContent) {
+				if (!SetStretchBltMode(hdc, HALFTONE)) {
+					PvDebugLog(L"PvCapture: SetStretchBltMode failed err=%u, retrying legacy\n", GetLastError());
+				} else if (StretchBlt(hdc, rcDst.left, rcDst.top, cxBmp, cyBmp,
+					hdcTemp, 0, 0, frames[iBest].cxSrc, frames[iBest].cySrc, SRCCOPY)) {
+					PvDebugLog(L"PvCapture: selected flags=0x%08X score=%d src=%dx%d preview=%dx%d\n",
+						frames[iBest].dwFlags, frames[iBest].score.nScore,
+						frames[iBest].cxSrc, frames[iBest].cySrc, cxBmp, cyBmp);
+					fRet = TRUE;
+				} else {
+					PvDebugLog(L"PvCapture: StretchBlt failed err=%u, retrying legacy\n", GetLastError());
+				}
+			} else {
+				if (BitBlt(hdc, rcDst.left, rcDst.top, cxBmp, cyBmp, hdcTemp, 0, 0, SRCCOPY)) {
+					PvDebugLog(L"PvCapture: selected flags=0x%08X score=%d src=%dx%d preview=%dx%d\n",
+						frames[iBest].dwFlags, frames[iBest].score.nScore,
+						frames[iBest].cxSrc, frames[iBest].cySrc, cxBmp, cyBmp);
+					fRet = TRUE;
+				} else {
+					PvDebugLog(L"PvCapture: BitBlt failed err=%u, retrying legacy\n", GetLastError());
+				}
+			}
+			RestoreDC(hdc, nSave);
+		}
+		if (hbmOld)
+			SelectObject(hdcTemp, hbmOld);
+		if (!fRet) {
+			fRet = PrintWindow(hwndPv, hdc, 0);
+			PvDebugLog(L"PvCapture: selected flags=0x00000000 (legacy retry) ok=%d\n", fRet);
+		}
+	} else {
+		PvDebugLog(L"PvCapture: legacy only (no successful candidate)\n");
+	}
+
+	for (int i = 0; i < cCandidates; i++) {
+		if (frames[i].hbm)
+			DeleteObject(frames[i].hbm);
+	}
+	DeleteDC(hdcTemp);
+	return(fRet);
+}
+
 BOOL MyPrintWindow(HWND hwndPv, HDC hdc, const RECT* prcPv, const RECT* prcWork, DWORD dwFlags) {
 
 	HRGN hrgnPv = NULL, hrgnOld = NULL;
@@ -248,7 +649,13 @@ BOOL MyPrintWindow(HWND hwndPv, HDC hdc, const RECT* prcPv, const RECT* prcWork,
 	QueryPerformanceFrequency(&liFreq);
 	QueryPerformanceCounter(&liStart);*/
 
-	BOOL fRet = PrintWindow(hwndPv, hdc, 0);
+	BOOL fRet = FALSE;
+	if ((dwFlags & MPW_TASKPREVIEW) && g_dwPvCaptureMode != PVCAP_LEGACY) {
+		fRet = PvPrintWindowCascade(hwndPv, hdc, prcPv, &xForm);
+	} else {
+		// Background/taskbar captures and legacy mode keep the original call.
+		fRet = PrintWindow(hwndPv, hdc, 0);
+	}
 
 	/*QueryPerformanceCounter(&liCur);
 	WCHAR szBuff[128];
