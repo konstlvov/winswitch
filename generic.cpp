@@ -24,6 +24,16 @@ void ReportError(UINT uErrorID) {
 	ReportError(szError);
 }
 
+void ReportErrorToDebug(LPCWSTR szError) {
+	OutputDebugString(szError);
+}
+
+void ReportErrorToDebug(UINT uErrorID) {
+	WCHAR szError[MAX_LANGLEN];
+	LangLoadString(uErrorID, szError, MAX_LANGLEN);
+	ReportErrorToDebug(szError);
+}
+
 void FatalError(UINT uErrorID) {
 	ReportError(uErrorID);
 	ExitProcess(1);
@@ -53,7 +63,7 @@ void HotKeyError(LPCWSTR szHk, UINT fModifiers, UINT vkCode) {
 	WCHAR szHkError[MAX_LANGLEN], szError[2 * MAX_LANGLEN + 20];
 	LangLoadString(IDS_ERR_HKERROR, szHkError, MAX_LANGLEN);
 	wsprintf(szError, szHkError, szHk, fModifiers, vkCode);
-	ReportError(szError);
+	ReportErrorToDebug(szError);
 }
 
 void HotKeyError(UINT uHkID, UINT fModifiers, UINT vkCode) {

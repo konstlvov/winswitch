@@ -9,6 +9,8 @@
 
 void ReportError(LPCWSTR);
 void ReportError(UINT);
+void ReportErrorToDebug(LPCWSTR);
+void ReportErrorToDebug(UINT);
 BOOL ConfirmMessage(LPCWSTR, UINT uIconType =MB_ICONQUESTION);
 BOOL ConfirmMessage(UINT, UINT uIconType =MB_ICONQUESTION);
 void HotKeyError(LPCWSTR, UINT, UINT);
