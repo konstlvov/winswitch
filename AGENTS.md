@@ -42,7 +42,7 @@ Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_l
 
 - `main.cpp` — entrypoint, command line, hidden message window, tray icon, global hotkeys, command dispatch.
 - `TaskSwitchXP.cpp` — the switcher window: task list layout/painting, Alt-Tab state machine, type-to-filter, hotkey hint. Keyboard handling lives in the block marked `//klvov: alternative keyboard handling proc` (~line 3739).
-- `generic.cpp` — window enumeration/icons/wallpaper/tray helpers; `MyPrintWindow` renders preview thumbnails (recent work uses `PW_RENDERFULLCONTENT` with a fallback).
+- `generic.cpp` — window enumeration/icons/wallpaper/tray helpers; `MyPrintWindow` renders preview thumbnails with `PrintWindow(..., 0)`.
 - `tscontrol.cpp` — list operations: select/multi-select, close, minimize, restore/maximize, cascade/tile, sort.
 - `registry.h` — all setting names and `TSF_*`/`TSFL_*` flag bits.
 - `TaskSwitchXP.rc` + `res/` — version info (2.0.11.0), manifest, icons. `orig-src/` is the untouched upstream source (VS2005 projects): reference only, do not edit or build.
@@ -51,7 +51,7 @@ Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_l
 
 - Both `Debug` and `Release` use `wWinMain` from `main.cpp`, so CRT startup runs normally. Keep it that way: this code relies on CRT state (per-thread data, `_initterm`, security cookie), and Release-only "works but does nothing" bugs are easy to introduce by bypassing it.
 - `_AddNewTaskWindow` falls back to `QueryFullProcessImageName` when `EnumProcessModulesEx` fails (normal for 64-bit targets seen from the Win32 build, and for WOW64 targets seen from the x64 build). `MyEnumDesktopWindows` catches access violations and reports "no tasks", so a fault on that path shows up as "the switcher does nothing" instead of a crash. Keep that fallback free of CRT-state-dependent helpers.
-- If a configured hotkey is already registered system-wide, `LoadSettings` (running inside `WM_CREATE`) shows a modal "Could not register hot key" box and startup blocks there until it is dismissed. That looks like "tray icon, nothing works" too; check `HKCU\...\2.0` hotkey values before blaming the build.
+- If a configured hotkey is already registered system-wide, `LoadSettings` (running inside `WM_CREATE`) reports the error with `OutputDebugString` instead of a modal box, so startup is not blocked. The same applies to hotkey/hook registration failures in `ReplaceAltTab` and `HotKeyError`. Other `ReportError` dialogs (e.g. `IDS_ERR_EXISTS`, `IDS_ERR_CONFIGTSXP`, `IDS_ERR_LOADSETTINGS`, `IDS_ERR_LANGFILE`) remain modal. Check `HKCU\...\2.0` hotkey values and debug output before blaming the build.
 - Keep the code arch-neutral: MSVC does not support `__asm` on x64, so the x87 blocks that used to compute the preview/wallpaper `XFORM` in `generic.cpp` and `TaskSwitchXP.cpp` are now plain C (checked numerically against the old asm for 32-bit). Use `DWORD_PTR`/`LONG_PTR` for `GetWindowLongPtr` results and `SendMessageTimeout` out-params; a `DWORD*` fails to compile for x64.
 - Minimum OS is set in `stdafx.h` (`_WIN32_WINNT 0x0600`, Vista). The Release project also passes `0x0501`, so the C4005 "macro redefinition" warning is expected; change the version in `stdafx.h` only.
 - Release uses a `stdafx.h` PCH; Debug compiles without one. Keep `#include "stdafx.h"` first in every `.cpp`.

@@ -727,7 +727,7 @@ void ReplaceAltTab(DWORD dwFlags) {
 				(HOOKPROC)AltTabKeyboardProc, g_hinstExe, NULL);
 			if (!g_hhookKb) {
 				g_dwFlags &= ~TSF_HOOKALTTAB;
-				ReportError(IDS_ERR_KBHOOK);
+				ReportErrorToDebug(IDS_ERR_KBHOOK);
 			} else {
 				g_dwFlags &= ~TSF_NOREPLACEALTTAB;
 				g_dwFlags |= TSF_HOOKALTTAB;
@@ -735,7 +735,7 @@ void ReplaceAltTab(DWORD dwFlags) {
 		} else {
 			if (!RegisterHotKey(g_hwndMain, IDH_NEXTTASK, MOD_ALT, VK_TAB) ||
 				!RegisterHotKey(g_hwndMain, IDH_PREVTASK, MOD_ALT | MOD_SHIFT, VK_TAB)) {
-				ReportError(IDS_ERR_ALTTAB);
+				ReportErrorToDebug(IDS_ERR_ALTTAB);
 			} else {
 				g_dwFlags &= ~TSF_NOREPLACEALTTAB;
 				RegisterHotKey(g_hwndMain, IDH_WINNEXTTASK, MOD_ALT | MOD_WIN, VK_TAB);
@@ -749,14 +749,14 @@ void ReplaceAltTab(DWORD dwFlags) {
 			if (!RegisterHotKey(g_hwndMain, IDH_INSTNEXT, MOD_CONTROL | MOD_ALT, VK_TAB) ||
 				!RegisterHotKey(g_hwndMain, IDH_INSTPREV, MOD_CONTROL | MOD_ALT | MOD_SHIFT, VK_TAB)) {
 				g_dwFlags &= ~TSF_INSTSWITCHER;
-				ReportError(IDS_ERR_INSTSWITCHER);
+				ReportErrorToDebug(IDS_ERR_INSTSWITCHER);
 			}
 		} else if (!g_hhookKb) {			
 			g_hhookKb = SetWindowsHookEx(WH_KEYBOARD_LL, 
 				(HOOKPROC)AltTabKeyboardProc, g_hinstExe, NULL);
 			if (!g_hhookKb) {
 				g_dwFlags &= ~(TSF_INSTSWITCHER | TSF_HOOKALTTAB);
-				ReportError(IDS_ERR_KBHOOK);
+				ReportErrorToDebug(IDS_ERR_KBHOOK);
 			} else {
 				g_dwFlags |= TSF_HOOKALTTAB;
 			}
