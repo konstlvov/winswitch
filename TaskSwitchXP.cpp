@@ -51,6 +51,7 @@ HFONT g_hfontList				= NULL;
 int g_nIconsX					= DEFAULT_ICONSX;
 int g_nIconsY					= DEFAULT_ICONSY;
 DWORD g_dwPvDelay				= DEFAULT_PVDELAY;
+DWORD g_dwPvCaptureMode			= DEFAULT_PVCAPTUREMODE;
 DWORD g_dwShowDelay				= DEFAULT_SHOWDELAY;
 HWND g_hwndFrgnd				= NULL;
 DWORD g_idThreadAttachTo		= 0;
@@ -294,6 +295,7 @@ BOOL LoadSettings() {
 	g_crPaneText = DEFAULT_PANETEXTCOLOR;
 	g_dwPaneShadow = DEFAULT_PANESHADOW;
 	g_dwPvDelay = DEFAULT_PVDELAY;
+	g_dwPvCaptureMode = DEFAULT_PVCAPTUREMODE;
 	g_dwFadeIn = DEFAULT_FADEIN;
 	g_dwFadeOut = DEFAULT_FADEOUT;
 	g_dwShowDelay = DEFAULT_SHOWDELAY;
@@ -362,6 +364,8 @@ BOOL LoadSettings() {
 		RegQueryValueEx(hkey, RS_PVDELAY, 0, NULL, (PBYTE)&g_dwPvDelay, &cbData);
 	    cbData = sizeof(DWORD);
 		RegQueryValueEx(hkey, RS_PVWIDTH, 0, NULL, (PBYTE)&g_rcPv.right, &cbData);
+		cbData = sizeof(DWORD);
+		RegQueryValueEx(hkey, RS_PVCAPTUREMODE, 0, NULL, (PBYTE)&g_dwPvCaptureMode, &cbData);
 	    cbData = sizeof(DWORD);
 		RegQueryValueEx(hkey, RS_LISTWIDTH, 0, NULL, (PBYTE)&g_rcList.right, &cbData);
 	    cbData = sizeof(DWORD);
@@ -503,6 +507,9 @@ BOOL LoadSettings() {
 		RegQueryValueEx(hkey, RS_LISTFONTNAME, 0, NULL, (PBYTE)szBuff, &cbData);
 	    RegCloseKey(hkey);
 	}
+
+	if (g_dwPvCaptureMode > PVCAP_DIAGNOSTIC)
+		g_dwPvCaptureMode = DEFAULT_PVCAPTUREMODE;
 
 	// default colors
 	if (CheckColorTheme())
@@ -2223,7 +2230,8 @@ HBITMAP DrawTaskPreview(const PVDATA* pvData) {
 							!(GetWindowLongPtr(hwndPv, GWL_EXSTYLE) & WS_EX_LAYERED)) {
 							fPrintWindow = MyPrintWindow(hwndPv, hdcMem, &rcPv, 
 								&rcWork, (g_dwFlagsPv & TSFPV_OLDSTYLE && !(g_dwFlagsPv & TSFPV_VCENTER)) 
-								? MPW_NOCHECKPOS | MPW_HCENTER : MPW_NOCHECKPOS | MPW_HCENTER | MPW_VCENTER);
+								? MPW_TASKPREVIEW | MPW_NOCHECKPOS | MPW_HCENTER 
+								: MPW_TASKPREVIEW | MPW_NOCHECKPOS | MPW_HCENTER | MPW_VCENTER);
 							if (fPrintWindow)
 								fIsIconic = FALSE;
 						}
@@ -2276,9 +2284,9 @@ HBITMAP DrawTaskPreview(const PVDATA* pvData) {
 				}
 			}
 
-			DWORD dwFlagsPv = (g_dwFlagsPv & TSFPV_DESKTOP) ? MPW_DESKTOP 
+			DWORD dwFlagsPv = MPW_TASKPREVIEW | ((g_dwFlagsPv & TSFPV_DESKTOP) ? MPW_DESKTOP 
 				: ((g_dwFlagsPv & TSFPV_OLDSTYLE && !(g_dwFlagsPv & TSFPV_VCENTER)) 
-				? MPW_HCENTER : (MPW_HCENTER | MPW_VCENTER));
+				? MPW_HCENTER : (MPW_HCENTER | MPW_VCENTER)));
 
 			nWnd = pvData->nWndPv - 1;
 			while (nWnd >= 0) {

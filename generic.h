@@ -40,6 +40,8 @@ BOOL MyPaintWallpaper(HDC, const RECT*, const WALLPAPER*);
 #define MPW_DESKTOP						0x00000001
 #define MPW_NOCHECKPOS					0x00000002
 #define MPW_NOREGION					0x00000004
+// Marks an ordinary task preview (as opposed to taskbar/sidebar background capture)
+#define MPW_TASKPREVIEW					0x00000008
 #define MPW_HCENTER						0x00000010
 #define MPW_VCENTER						0x00000020
 
