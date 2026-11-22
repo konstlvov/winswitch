@@ -3811,7 +3811,7 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 								(g_pTs[g_nCurTs].dwFlags & TI_SELECTED)?FALSE:TRUE   ) )
 								DestroyWindow(hwnd);
 							break;
-						case VK_DELETE: // обработчик по Win+K
+						case VK_DELETE: // РѕР±СЂР°Р±РѕС‚С‡РёРє РїРѕ Win+K
 							RemoveSelected(hwnd);
 							break;
 						case VK_F5:
@@ -4015,7 +4015,7 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 					}
 					break;
 
-				case VK_DELETE: // обработчик по Win+F12
+				case VK_DELETE: // РѕР±СЂР°Р±РѕС‚С‡РёРє РїРѕ Win+F12
 					RemoveSelected(hwnd);
 					break;
 
@@ -4373,8 +4373,8 @@ void ProcessTypeBuffer(HWND hwnd) //tag kl2
 	ZeroMemory (Matched, sizeof (Matched) );
 	int tblen = lstrlen(g_szTypeBuffer);
   //
-  // перечитываем список окон (нужно для реализации
-  // фильтрации по введенным символам)
+  // РїРµСЂРµС‡РёС‚С‹РІР°РµРј СЃРїРёСЃРѕРє РѕРєРѕРЅ (РЅСѓР¶РЅРѕ РґР»СЏ СЂРµР°Р»РёР·Р°С†РёРё
+  // С„РёР»СЊС‚СЂР°С†РёРё РїРѕ РІРІРµРґРµРЅРЅС‹Рј СЃРёРјРІРѕР»Р°Рј)
   OutputDebugString(L"removed, about to reset task list\r\n");
   MyEnumDesktopWindows();
   SortTaskListByModuleName(hwnd);
@@ -4408,8 +4408,8 @@ void ProcessTypeBuffer(HWND hwnd) //tag kl2
     SwitchToCurTask(hwnd);
   }
 	else { // do some clever things... may be later
-    // удалить из списка то, что не начинается с введенных символов
-    // с помощью DeleteTsItem
+    // СѓРґР°Р»РёС‚СЊ РёР· СЃРїРёСЃРєР° С‚Рѕ, С‡С‚Рѕ РЅРµ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ РІРІРµРґРµРЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ
+    // СЃ РїРѕРјРѕС‰СЊСЋ DeleteTsItem
     wsprintf(tmp, L"Number of matching tasks: %d, about to delete non-matched\n",
         NumMatched);
     OutputDebugString(tmp);

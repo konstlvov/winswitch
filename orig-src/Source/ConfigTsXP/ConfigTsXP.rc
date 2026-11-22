@@ -37,7 +37,7 @@ BEGIN
 			VALUE "FileDescription", "TaskSwitchXP Configuration"
 			VALUE "FileVersion", "2.0.11.0"
 			VALUE "InternalName", "ConfigTsXP.exe"
-			VALUE "LegalCopyright", "© 2004-2006 by Alexander Avdonin"
+			VALUE "LegalCopyright", "Â© 2004-2006 by Alexander Avdonin"
 			VALUE "OriginalFilename", "ConfigTsXP.exe"
 			VALUE "ProductName", "TaskSwitchXP"
 			VALUE "ProductVersion", "2.0.11.0"
@@ -101,7 +101,7 @@ BEGIN
     PUSHBUTTON      "",IDC_CANCEL,242,212,55,15
 	PUSHBUTTON      "",IDC_APPLY,300,212,55,15
 
-	CONTROL         "© 2004-2006 by <A id=""idMyMail"" href=""mailto:alexander@ntwind.com?subject=TaskSwitchXP%20Pro%202.0"">Alexander Avdonin</A>\r\n<A id=""idMyHome"" href=""http://www.ntwind.com/taskswitchxp/"">http://www.ntwind.com/taskswitchxp/</A>",
+	CONTROL         "Â© 2004-2006 by <A id=""idMyMail"" href=""mailto:alexander@ntwind.com?subject=TaskSwitchXP%20Pro%202.0"">Alexander Avdonin</A>\r\n<A id=""idMyHome"" href=""http://www.ntwind.com/taskswitchxp/"">http://www.ntwind.com/taskswitchxp/</A>",
 					IDC_TRANSLATORLINK,"SysLink",WS_TABSTOP,4,211,180,16
 END
 
@@ -421,7 +421,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
 	ICON            IDI_TASKSWITCHXP48,IDC_STATIC,12,10,48,48,SS_REALSIZEIMAGE
 	LTEXT           "TaskSwitchXP Pro 2.0.11",IDC_STATIC,52,10,191,8
-	LTEXT           "Copyright © 2004-2006 by Alexander Avdonin",IDC_STATIC,52,21,191,8
+	LTEXT           "Copyright Â© 2004-2006 by Alexander Avdonin",IDC_STATIC,52,21,191,8
 	CONTROL         "<A id=""idHome"" href=""http://www.ntwind.com/taskswitchxp/"">http://www.ntwind.com/taskswitchxp/</A>",
 					IDC_HOMELINK,"SysLink",WS_TABSTOP,52,32,191,8
 	CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,46,236,1

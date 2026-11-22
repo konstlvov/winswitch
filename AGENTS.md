@@ -2,6 +2,10 @@
 
 Maintained fork of TaskSwitchXP (WinSwitch): a Win32 C++ Alt-Tab replacement, built for both 32-bit and 64-bit Windows. No tests, no lint, no CI. Verification is a build plus manual use of the switcher.
 
+## Agent workflow
+
+The default agent is `architect` (`.opencode/agents/architect.md`). It plans and delegates: `developer` (`mode: subagent`) makes the edits and verifies builds; `reviewer` (`mode: subagent`) only inspects and reports findings — it has no `edit` permission and a read-only shell allowlist. Do not bypass this split: hand implementation to `developer`, then ask `reviewer` to check the result. Config lives in `.opencode/opencode.jsonc`; existing sessions keep their selected agent, so `/agent architect` (or a new session) is needed to pick it up.
+
 ## Build
 
 MSBuild (verified working):
@@ -54,4 +58,4 @@ Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_l
 - Files are CRLF; `generic.cpp` contains a few LF-only lines from the snapshot commit. Edit in place rather than normalizing line endings or reformatting whole files.
 - Root `afxres.h` is a local MinGW shim included by `TaskSwitchXP.rc` because MFC is not installed. Keep it.
 - `TaskSwitchXP.vcproj` is a stale VS2005 file; the solution builds `TaskSwitchXP.vcxproj`.
-- `todo.txt` and some comments in `TaskSwitchXP.cpp` are CP1251 Russian; mojibake when read as UTF-8 is normal. Because of that, edit `TaskSwitchXP.cpp` byte-safely (e.g. a Latin-1 roundtrip in PowerShell): rewriting it through a UTF-8 text editor turns those comments into replacement characters and shows up as unrelated diff hunks.
+- Sources are UTF-8 without BOM; MSVC builds with `/utf-8` and RC with `/c65001`. `orig-src/` has been converted to UTF-8 too but remains reference only: do not edit or build it.

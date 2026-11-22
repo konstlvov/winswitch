@@ -1081,7 +1081,7 @@ void LoadSettings(BOOL fDefaults) {
 
 //-----------------------------------------------------------------
 // return 0 - success, (-1) - exclusions, (-2) - settings reloaded, (-3) - bad file
-// халява - никогда так не делайте!!!
+// С…Р°Р»СЏРІР° - РЅРёРєРѕРіРґР° С‚Р°Рє РЅРµ РґРµР»Р°Р№С‚Рµ!!!
 int ImportSettings(PCWSTR pszFile) {
 
 	_ASSERT(pszFile);
