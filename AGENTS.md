@@ -42,7 +42,7 @@ Scripted alternatives (also verified): `cmd /c do_compile.cmd` then `cmd /c do_l
 
 - `main.cpp` — entrypoint, command line, hidden message window, tray icon, global hotkeys, command dispatch.
 - `TaskSwitchXP.cpp` — the switcher window: task list layout/painting, Alt-Tab state machine, type-to-filter, hotkey hint. Keyboard handling lives in the block marked `//klvov: alternative keyboard handling proc` (~line 3739).
-- `generic.cpp` — window enumeration/icons/wallpaper/tray helpers; `MyPrintWindow` renders preview thumbnails (recent work uses `PW_RENDERFULLCONTENT` with a fallback).
+- `generic.cpp` — window enumeration/icons/wallpaper/tray helpers; `MyPrintWindow` renders preview thumbnails with `PrintWindow(..., 0)`.
 - `tscontrol.cpp` — list operations: select/multi-select, close, minimize, restore/maximize, cascade/tile, sort.
 - `registry.h` — all setting names and `TSF_*`/`TSFL_*` flag bits.
 - `TaskSwitchXP.rc` + `res/` — version info (2.0.11.0), manifest, icons. `orig-src/` is the untouched upstream source (VS2005 projects): reference only, do not edit or build.
