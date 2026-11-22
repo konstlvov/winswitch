@@ -62,7 +62,7 @@ If not, please send a bug report to: alexander@ntwind.com
 Credits
 =======
 
-Icons used with permission from FOOOD’s Icons (http://www.foood.net/).
+Icons used with permission from FOOODâ€™s Icons (http://www.foood.net/).
 
 
                                                Alexander Avdonin, April 12, 2005

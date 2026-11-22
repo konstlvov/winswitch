@@ -1319,16 +1319,15 @@ BOOL _AddNewTaskWindow(HWND hwndOwner, HWND hwnd) {
 		  OutputDebugString(L"function QueryFullProcessImageName also has failed\r\n");
 		}
 		else { // ok, got full process image name
-			WCHAR *part;
-			WCHAR last_part[4000];
-			part = wcstok(ti.szModuleName, L"\\");
-			while (part != NULL) {
-				//OutputDebugString(part);
-				//OutputDebugString(L"\r\n");
-				lstrcpy(last_part, part);
-				part = wcstok(NULL, L"\\");
+			// keep only the file name; do not use wcstok here - it depends on
+			// CRT per-thread state and leaves last_part uninitialized
+			PWSTR pszName = ti.szModuleName;
+			for (PWSTR p = ti.szModuleName; *p; p++) {
+				if (*p == L'\\')
+					pszName = p + 1;
 			}
-			lstrcpy(ti.szModuleName, last_part);
+			MoveMemory(ti.szModuleName, pszName, 
+				(lstrlen(pszName) + 1) * sizeof(WCHAR));
 			//wsprintf(tmp, L" QueryFullProcessImageName: %d", ti.dwProcessId); lstrcat(ti.szModuleName, tmp);
 			//OutputDebugString(last_part);
 			//OutputDebugString(L"\r\n");
@@ -1692,21 +1691,12 @@ BOOL InitTsBackground(HWND hwndTs) {
 				rc1.right = g_rcTs.right;
 				rc1.bottom = g_rcTs.bottom / 2 + 1;
 
-				__asm {
-					fild int ptr g_rcTs.bottom
-					fstp xForm.eDy
-
-					fld1
-					fstp xForm.eM11
-
-					fldz
-					fst xForm.eDx
-					fst xForm.eM12
-					fst xForm.eM21
-
-					fsub xForm.eM11
-					fstp xForm.eM22
-				}
+				xForm.eM11 = 1.f;
+				xForm.eM12 = 0.f;
+				xForm.eM21 = 0.f;
+				xForm.eM22 = -1.f;
+				xForm.eDx = 0.f;
+				xForm.eDy = (FLOAT)g_rcTs.bottom;
 
 				if (GetThemeBackgroundRegion(g_htheme, NULL, 
 					SPP_USERPANE, 0, &rc1, &hrgn) != S_OK) __leave;
@@ -1909,10 +1899,8 @@ BOOL InitTsBackground(HWND hwndTs) {
 				if (DrawThemeBackground(g_htheme, hdcMem2, 
 					SPP_USERPANE, 0, &rc1, NULL) != S_OK) __leave;
 
-				__asm {
-					fild int ptr rc1.bottom
-					fstp xForm.eDy
-				}
+				xForm.eDy = (FLOAT)rc1.bottom;
+
 
 				SetGraphicsMode(hdcMem2, GM_ADVANCED);
 				SetMapMode(hdcMem2, MM_ANISOTROPIC);
@@ -3823,7 +3811,7 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 								(g_pTs[g_nCurTs].dwFlags & TI_SELECTED)?FALSE:TRUE   ) )
 								DestroyWindow(hwnd);
 							break;
-						case VK_DELETE: // обработчик по Win+K
+						case VK_DELETE: // РѕР±СЂР°Р±РѕС‚С‡РёРє РїРѕ Win+K
 							RemoveSelected(hwnd);
 							break;
 						case VK_F5:
@@ -4027,7 +4015,7 @@ LRESULT CALLBACK TaskSwitchWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 					}
 					break;
 
-				case VK_DELETE: // обработчик по Win+F12
+				case VK_DELETE: // РѕР±СЂР°Р±РѕС‚С‡РёРє РїРѕ Win+F12
 					RemoveSelected(hwnd);
 					break;
 
@@ -4385,8 +4373,8 @@ void ProcessTypeBuffer(HWND hwnd) //tag kl2
 	ZeroMemory (Matched, sizeof (Matched) );
 	int tblen = lstrlen(g_szTypeBuffer);
   //
-  // перечитываем список окон (нужно для реализации
-  // фильтрации по введенным символам)
+  // РїРµСЂРµС‡РёС‚С‹РІР°РµРј СЃРїРёСЃРѕРє РѕРєРѕРЅ (РЅСѓР¶РЅРѕ РґР»СЏ СЂРµР°Р»РёР·Р°С†РёРё
+  // С„РёР»СЊС‚СЂР°С†РёРё РїРѕ РІРІРµРґРµРЅРЅС‹Рј СЃРёРјРІРѕР»Р°Рј)
   OutputDebugString(L"removed, about to reset task list\r\n");
   MyEnumDesktopWindows();
   SortTaskListByModuleName(hwnd);
@@ -4420,8 +4408,8 @@ void ProcessTypeBuffer(HWND hwnd) //tag kl2
     SwitchToCurTask(hwnd);
   }
 	else { // do some clever things... may be later
-    // удалить из списка то, что не начинается с введенных символов
-    // с помощью DeleteTsItem
+    // СѓРґР°Р»РёС‚СЊ РёР· СЃРїРёСЃРєР° С‚Рѕ, С‡С‚Рѕ РЅРµ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ РІРІРµРґРµРЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ
+    // СЃ РїРѕРјРѕС‰СЊСЋ DeleteTsItem
     wsprintf(tmp, L"Number of matching tasks: %d, about to delete non-matched\n",
         NumMatched);
     OutputDebugString(tmp);

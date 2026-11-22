@@ -85,11 +85,7 @@ void ParseCommandLine() {
 
 //-----------------------------------------------------------
 
-#ifdef _DEBUG
 int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
-#else // _DEBUG
-void APIENTRY _myWinMain() {
-#endif // _DEBUG
 
     g_hinstExe = GetModuleHandle(NULL);
 
@@ -162,11 +158,7 @@ void APIENTRY _myWinMain() {
 		DestroyThreadLang2();
 		//if (hmtx) CloseHandle(hmtx);		
 	}
-#ifdef _DEBUG
 	return(nExitCode);
-#else // _DEBUG
-	ExitProcess((UINT)nExitCode);
-#endif
 }
 
 //-----------------------------------------------------------
@@ -702,7 +694,7 @@ BOOL FlipToTray(HWND hwnd) {
 		hwndTmp = GetWindow(hwndTmp, GW_OWNER);
 	} while (hwndTmp && hwndTmp != hwndShell);
 
-	DWORD dw = GetWindowLongPtr(hwndOwner, GWL_STYLE);
+	DWORD_PTR dw = GetWindowLongPtr(hwndOwner, GWL_STYLE);
 	if (!(dw & WS_MINIMIZEBOX) || dw & WS_CHILD)
 		return(FALSE);
 
@@ -971,7 +963,7 @@ LRESULT CALLBACK ExtMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 				if (s_nRBtnBlock == 0) {
 					if (g_dwFlags & TSF_EXTMOUSE) {
 						HWND hwnd = WindowFromPoint(pmh->pt);
-						DWORD dw;
+						DWORD_PTR dw;
 						if (SendMessageTimeout(hwnd, WM_NCHITTEST, 0, 
 							MAKELPARAM((WORD)pmh->pt.x, (WORD)pmh->pt.y), 
 							SMTO_ABORTIFHUNG, HUNG_TIMEOUT, &dw)) {
@@ -1001,7 +993,7 @@ LRESULT CALLBACK ExtMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 				if (s_nRBtnBlock == 0) {
 					if (g_dwFlags & TSF_EXTMOUSE && (s_dwAction == HTMINBUTTON || s_dwAction == HTMAXBUTTON)) {
 						HWND hwnd = WindowFromPoint(pmh->pt);
-						DWORD dw;
+						DWORD_PTR dw;
 						if (SendMessageTimeout(hwnd, WM_NCHITTEST, 0, 
 							MAKELPARAM((WORD)pmh->pt.x, (WORD)pmh->pt.y), 
 							SMTO_ABORTIFHUNG, HUNG_TIMEOUT, &dw)) {
